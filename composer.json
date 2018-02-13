@@ -22,6 +22,9 @@
   "require-dev": {
     "phpunit/phpunit": "^4.8"
   },
+  "suggest": {
+    "ingenerator/warden-validator-symfony": "Default entity / request validation implemenation using symfony validation"
+  },
   "autoload": {
     "psr-4": {
       "Ingenerator\\Warden\\Core\\": "src/"
