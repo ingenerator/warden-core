@@ -1,0 +1,34 @@
+{
+  "name": "ingenerator/warden-core",
+  "type": "library",
+  "description": "Framework-and-driver-independent authentication and authorization package",
+  "keywords": [
+    "web",
+    "auth",
+    "acl"
+  ],
+  "homepage": "http://github.com/ingenerator/warden-core",
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Andrew Coulton",
+      "email": "andrew@ingenerator.com",
+      "homepage": "http://ingenerator.com"
+    }
+  ],
+  "require": {
+    "php": "^5.5"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ingenerator\\Warden\\Core\\": "src/"
+    }
+  },
+  "config": {
+    "bin-dir": "bin",
+    "preferred-install": "dist"
+  }
+}
