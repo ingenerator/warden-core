@@ -49,6 +49,11 @@ class FixedUrlProviderStub implements UrlProvider
         return $url;
     }
 
+    public function getLogoutUrl()
+    {
+        return '/logout';
+    }
+
     public function getRegisterVerifyEmailUrl($email = NULL)
     {
         $url = '/register-verify-email';
