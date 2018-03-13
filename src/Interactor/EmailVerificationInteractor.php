@@ -17,17 +17,13 @@ use Ingenerator\Warden\Core\Validator\Validator;
 class EmailVerificationInteractor
 {
     /**
-     * @var Validator
+     * @var EmailConfirmationTokenService
      */
-    protected $validator;
+    protected $email_token_service;
     /**
      * @var UserNotificationMailer
      */
     protected $mailer;
-    /**
-     * @var EmailConfirmationTokenService
-     */
-    protected $email_token_service;
     /**
      * @var UrlProvider
      */
@@ -36,6 +32,10 @@ class EmailVerificationInteractor
      * @var UserRepository
      */
     protected $user_repository;
+    /**
+     * @var Validator
+     */
+    protected $validator;
 
     public function __construct(
         Validator $validator,
@@ -66,24 +66,7 @@ class EmailVerificationInteractor
             return EmailVerificationResponse::alreadyRegistered($request->getEmail());
         }
 
-        $params = [
-            'action' => $request->getAction(),
-            'email'  => $request->getEmail(),
-            'token'  => [
-                'action' => $request->getAction(),
-                'email'  => $request->getEmail(),
-            ],
-        ];
-
-        if ($request->isAction(EmailVerificationRequest::REGISTER)) {
-            $url = $this->buildContinuationUrl($this->url_provider->getRegistrationUrl(), $params);
-        } elseif ($request->isAction(EmailVerificationRequest::RESET_PASSWORD)) {
-            $params['token']['current_pw_hash'] = $request->getCurrentValue();
-
-            $url = $this->buildContinuationUrl($this->url_provider->getLoginUrl(), $params);
-        } else {
-            throw new \InvalidArgumentException('Unknown request type '.$request->getAction());
-        }
+        $url = $this->buildSignedContinuationUrl($request);
 
         $this->mailer->send(new ConfirmationRequiredNotification($request->getEmail(), $request->getAction(), $url));
 
@@ -101,16 +84,30 @@ class EmailVerificationInteractor
     }
 
     /**
-     * @param string $base_url
-     * @param array  $params
+     * @param EmailVerificationRequest $request
      *
-     * @return string
+     * @return mixed
      */
-    protected function buildContinuationUrl($base_url, array $params)
+    protected function buildSignedContinuationUrl(EmailVerificationRequest $request)
     {
-        $params['token'] = $this->email_token_service->createToken($params['token']);
-        $url             = $base_url.'?'.http_build_query($params);
+        $params       = ['email' => $request->getEmail()];
+        $token_params = array_merge($params, ['action' => $request->getAction()]);
 
-        return $url;
+        if ($request->isAction(EmailVerificationRequest::REGISTER)) {
+            $params['token'] = $this->email_token_service->createToken($token_params);
+
+            return $this->url_provider->getCompleteRegistrationUrl($params);
+
+        } elseif ($request->isAction(EmailVerificationRequest::RESET_PASSWORD)) {
+            $token_params['current_pw_hash'] = $request->getCurrentValue();
+
+            $params['token'] = $this->email_token_service->createToken($token_params);
+
+            return $this->url_provider->getCompletePasswordResetUrl($params);
+
+        } else {
+            throw new \InvalidArgumentException('Unknown request type '.$request->getAction());
+        }
     }
+
 }
