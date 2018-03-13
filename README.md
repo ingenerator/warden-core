@@ -4,7 +4,7 @@ that can be assembled as required.
 
 **Warden is under heavy development and not recommended for production use outwith inGenerator.**
 
-[![Build Status](https://travis-ci.org/ingenerator/warden-core.svg?branch=0.1.x)](https://travis-ci.org/ingenerator/warden-core)
+[![Build Status](https://travis-ci.org/ingenerator/warden-core.svg?branch=0.2.x)](https://travis-ci.org/ingenerator/warden-core)
 
 
 # Installing warden-core
