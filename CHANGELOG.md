@@ -1,5 +1,6 @@
 ### Unreleased
 
+* [Feature]  Automatically update user password hash on login if hash configuration has changed
 * [internal] Extract SaveSpyingUserRepository mock for reuse
 * [BREAKING] Rename UserNotificationMailer::send to ::sendWardenNotification
 * [BREAKING] Rename UserRepository methods to ingenerator conventions
