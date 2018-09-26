@@ -7,7 +7,6 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
-use Ingenerator\Warden\Core\Entity\User;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Interactor\PasswordResetInteractor;
 use Ingenerator\Warden\Core\Interactor\PasswordResetRequest;
@@ -19,6 +18,7 @@ use Ingenerator\Warden\Core\UserSession\SimplePropertyUserSession;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use Ingenerator\Warden\Core\Validator\Validator;
 use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
+use test\mock\Ingenerator\Warden\Core\Repository\SaveSpyingUserRepository;
 use test\mock\Ingenerator\Warden\Core\Support\InsecureJSONTokenServiceStub;
 use test\mock\Ingenerator\Warden\Core\Support\ReversingPassswordHasherStub;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
@@ -206,42 +206,6 @@ class PasswordResetInteractorTest extends AbstractInteractorTest
                 'current_pw_hash' => $old_hash,
             ]
         );
-    }
-
-}
-
-
-class SaveSpyingUserRepository extends ArrayUserRepository
-{
-
-    /**
-     * @var User[]
-     */
-    protected $users_saved;
-
-    public function __construct(array $users = [])
-    {
-        parent::__construct();
-        foreach ($users as $user) {
-            $this->save($user);
-        }
-        $this->users_saved = [];
-    }
-
-    public function save(User $user)
-    {
-        parent::save($user);
-        $this->users_saved[] = clone($user);
-    }
-
-    public function assertNothingSaved()
-    {
-        \PHPUnit_Framework_Assert::assertEmpty($this->users_saved);
-    }
-
-    public function assertOneSaved(User $user)
-    {
-        \PHPUnit_Framework_Assert::assertEquals([$user], $this->users_saved);
     }
 
 }
