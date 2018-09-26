@@ -1,5 +1,7 @@
 ### Unreleased
 
+### v0.2.1 (2018-09-26)
+
 * Support email verification request for when a new user is invited e.g. server-side by an admin. Allow the code to 
   follow the password-reset flow but specifiy a different email template for the message.
 
