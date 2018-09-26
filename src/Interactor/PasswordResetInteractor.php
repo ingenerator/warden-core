@@ -67,7 +67,7 @@ class PasswordResetInteractor
             return PasswordResetResponse::validationFailed($errors);
         }
 
-        if ( ! $user = $this->users_repo->loadByEmail($request->getEmail())) {
+        if ( ! $user = $this->users_repo->findByEmail($request->getEmail())) {
             return PasswordResetResponse::unknownUser($request->getEmail());
         }
 

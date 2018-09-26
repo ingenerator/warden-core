@@ -66,7 +66,7 @@ class LoginInteractor
             return LoginResponse::validationFailed($errors);
         }
 
-        if ( ! $user = $this->user_repo->loadByEmail($request->getEmail())) {
+        if ( ! $user = $this->user_repo->findByEmail($request->getEmail())) {
             return LoginResponse::notRegistered($request->getEmail());
         }
 

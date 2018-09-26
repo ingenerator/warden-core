@@ -151,7 +151,7 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
     public function test_it_saves_new_user()
     {
         $result = $this->executeWith(['email' => 'anyone@anywhere.net']);
-        $this->assertSame($result->getUser(), $this->user_repo->loadByEmail('anyone@anywhere.net'));
+        $this->assertSame($result->getUser(), $this->user_repo->findByEmail('anyone@anywhere.net'));
     }
 
     public function test_it_logs_in_user_when_active_on_registration()

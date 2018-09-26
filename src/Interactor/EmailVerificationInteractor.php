@@ -86,7 +86,7 @@ class EmailVerificationInteractor
      */
     protected function isRegistered($email)
     {
-        return (bool) $this->user_repository->loadByEmail($email);
+        return (bool) $this->user_repository->findByEmail($email);
     }
 
     /**

@@ -1,5 +1,8 @@
 ### Unreleased
 
+* Rename UserRepository methods to ingenerator conventions
+* UserRepository now throws if loading user with an unknown ID
+
 ### v0.2.1 (2018-09-26)
 
 * Support email verification request for when a new user is invited e.g. server-side by an admin. Allow the code to 

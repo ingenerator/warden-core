@@ -28,7 +28,7 @@ class ArrayUserRepository implements UserRepository
     /**
      * {@inheritdoc}
      */
-    public function loadByEmail($email)
+    public function findByEmail($email)
     {
         foreach ($this->users as $user) {
             if ($user->getEmail() === $email) {
@@ -42,12 +42,12 @@ class ArrayUserRepository implements UserRepository
     /**
      * {@inheritdoc}
      */
-    public function loadById($id)
+    public function load($id)
     {
         if (isset($this->users[$id])) {
             return $this->users[$id];
         } else {
-            return NULL;
+            throw UnknownUserException::forId($id);
         }
     }
 
@@ -67,9 +67,6 @@ class ArrayUserRepository implements UserRepository
     public function save(User $user)
     {
         if ($user->getId() === NULL) {
-            if ($this->loadByEmail($user->getEmail())) {
-
-            }
             $this->allocateUserId($user);
         }
 
@@ -98,7 +95,7 @@ class ArrayUserRepository implements UserRepository
      */
     protected function isEmailUnique(User $user)
     {
-        if ( ! $other_user = $this->loadByEmail($user->getEmail())) {
+        if ( ! $other_user = $this->findByEmail($user->getEmail())) {
             return TRUE;
         }
 
