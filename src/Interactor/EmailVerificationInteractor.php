@@ -68,7 +68,13 @@ class EmailVerificationInteractor
 
         $url = $this->buildSignedContinuationUrl($request);
 
-        $this->mailer->send(new ConfirmationRequiredNotification($request->getEmail(), $request->getAction(), $url));
+        $this->mailer->send(
+            new ConfirmationRequiredNotification(
+                $request->getEmail(),
+                $request->getEmailAction(),
+                $url
+            )
+        );
 
         return EmailVerificationResponse::success($request->getEmail());
     }
