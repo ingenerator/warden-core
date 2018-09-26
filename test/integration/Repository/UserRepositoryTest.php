@@ -49,7 +49,7 @@ abstract class UserRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->given_saved_users($this->newUser(['email' => 'existing-user@foo.net.zz']));
         $subject     = $this->newSubject();
-        $user        = $subject->loadByEmail('existing-user@foo.net.zz');
+        $user        = $subject->findByEmail('existing-user@foo.net.zz');
         $original_id = $user->getId();
         $subject->save($user);
         $this->assertSame($original_id, $user->getId(), 'Existing ID should be retained on save');
@@ -87,31 +87,34 @@ abstract class UserRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->newSubject()->save($user);
     }
 
-    public function test_it_returns_null_when_loading_user_with_unknown_id()
+    /**
+     * @expectedException \Ingenerator\Warden\Core\Repository\UnknownUserException
+     */
+    public function test_it_throws_if_loading_user_with_unknown_id()
     {
-        $this->assertNull($this->newSubject()->loadById(1234));
+        $this->newSubject()->load(1234);
     }
 
     public function test_it_can_load_saved_user_by_id()
     {
         $saved_user = $this->newUser();
         $this->given_saved_users($this->newUser(), $saved_user);
-        $loaded_user = $this->newSubject()->loadById($saved_user->getId());
+        $loaded_user = $this->newSubject()->load($saved_user->getId());
         $this->assertSame($saved_user, $loaded_user);
     }
 
-    public function test_it_returns_null_when_loading_user_with_unknown_email()
+    public function test_it_returns_null_when_finding_user_with_unknown_email()
     {
         $this->given_saved_users($this->newUser(['email' => uniqid('dummy-user').'@foo.net']));
-        $this->assertNull($this->newSubject()->loadByEmail(uniqid().'@unknown.com'));
+        $this->assertNull($this->newSubject()->findByEmail(uniqid().'@unknown.com'));
     }
 
-    public function test_it_can_load_saved_user_by_email()
+    public function test_it_can_find_saved_user_by_email()
     {
         $email      = uniqid('saved-user').'@bax.con';
         $saved_user = $this->newUser(['email' => $email]);
         $this->given_saved_users($this->newUser(), $saved_user);
-        $loaded_user = $this->newSubject()->loadByEmail($email);
+        $loaded_user = $this->newSubject()->findByEmail($email);
         $this->assertSame($saved_user, $loaded_user);
     }
 

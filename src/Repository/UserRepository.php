@@ -17,14 +17,14 @@ interface UserRepository
      *
      * @return User
      */
-    public function loadByEmail($email);
+    public function findByEmail($email);
 
     /**
      * @param string $id
      *
      * @return User
      */
-    public function loadById($id);
+    public function load($id);
 
     /**
      * @return User

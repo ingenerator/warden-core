@@ -68,7 +68,7 @@ class EmailVerificationInteractor
 
         $url = $this->buildSignedContinuationUrl($request);
 
-        $this->mailer->send(
+        $this->mailer->sendWardenNotification(
             new ConfirmationRequiredNotification(
                 $request->getEmail(),
                 $request->getEmailAction(),
@@ -86,7 +86,7 @@ class EmailVerificationInteractor
      */
     protected function isRegistered($email)
     {
-        return (bool) $this->user_repository->loadByEmail($email);
+        return (bool) $this->user_repository->findByEmail($email);
     }
 
     /**

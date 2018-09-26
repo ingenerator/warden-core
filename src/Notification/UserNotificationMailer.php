@@ -10,5 +10,5 @@ namespace Ingenerator\Warden\Core\Notification;
 interface UserNotificationMailer
 {
 
-    public function send(UserNotification $notification);
+    public function sendWardenNotification(UserNotification $notification);
 }
