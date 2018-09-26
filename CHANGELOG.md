@@ -1,5 +1,6 @@
 ### Unreleased
 
+* Rename UserNotificationMailer::send to ::sendWardenNotification
 * Rename UserRepository methods to ingenerator conventions
 * UserRepository now throws if loading user with an unknown ID
 

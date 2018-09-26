@@ -68,7 +68,7 @@ class EmailVerificationInteractor
 
         $url = $this->buildSignedContinuationUrl($request);
 
-        $this->mailer->send(
+        $this->mailer->sendWardenNotification(
             new ConfirmationRequiredNotification(
                 $request->getEmail(),
                 $request->getEmailAction(),

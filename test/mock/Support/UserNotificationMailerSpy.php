@@ -23,7 +23,7 @@ class UserNotificationMailerSpy implements UserNotificationMailer
         return $notification;
     }
 
-    public function send(UserNotification $notification)
+    public function sendWardenNotification(UserNotification $notification)
     {
         $this->sent[] = clone $notification;
     }
