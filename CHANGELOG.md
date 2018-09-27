@@ -1,5 +1,14 @@
 ### Unreleased
 
+* [BREAKING] Add leaky-bucket based rate limiting of email verifications sent to users:
+  * Adds new constructor dependency to EmailVerificationInteractor
+  * Adds new possible EmailVerificationResponse with status ERROR_RATE_LIMITED - which means
+    an email would have been sent but wasn't because that user has already been sent one/some of 
+    that type.
+  * Adds new possible LoginReponse with status ERROR_PASSWORD_INCORRECT_RESET_THROTTLED - which
+    means they got their password wrong and we would have sent an email but we've already recently
+    sent some. End-user applications may want to show this separately, or treat it the same as an
+    ERROR_PASSWORD_INCORRECT to handle it silently.
 * [Feature]  Automatically update user password hash on login if hash configuration has changed
 * [internal] Extract SaveSpyingUserRepository mock for reuse
 * [BREAKING] Rename UserNotificationMailer::send to ::sendWardenNotification

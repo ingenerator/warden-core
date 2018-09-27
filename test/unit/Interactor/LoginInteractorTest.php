@@ -56,7 +56,10 @@ class LoginInteractorTest extends AbstractInteractorTest
 
     public function test_it_is_initialisable()
     {
-        $this->assertInstanceOf('\Ingenerator\Warden\Core\Interactor\LoginInteractor', $this->newSubject());
+        $this->assertInstanceOf(
+            '\Ingenerator\Warden\Core\Interactor\LoginInteractor',
+            $this->newSubject()
+        );
     }
 
     /**
@@ -84,17 +87,28 @@ class LoginInteractorTest extends AbstractInteractorTest
     public function provider_failed_login_users()
     {
         return [
-            [UserStub::activeWithPasswordHash('foo@bar.com', 'abcdefgh'), LoginResponse::ERROR_PASSWORD_INCORRECT],
-            [UserStub::inactiveWithPasswordHash('foo@bar.com', 'abcdefgh'), LoginResponse::ERROR_NOT_ACTIVE],
-            [UserStub::inactiveWithPasswordHash('foo@bar.com', '87654321'), LoginResponse::ERROR_NOT_ACTIVE],
+            [
+                UserStub::activeWithPasswordHash('foo@bar.com', 'abcdefgh'),
+                LoginResponse::ERROR_PASSWORD_INCORRECT
+            ],
+            [
+                UserStub::inactiveWithPasswordHash('foo@bar.com', 'abcdefgh'),
+                LoginResponse::ERROR_NOT_ACTIVE
+            ],
+            [
+                UserStub::inactiveWithPasswordHash('foo@bar.com', '87654321'),
+                LoginResponse::ERROR_NOT_ACTIVE
+            ],
         ];
     }
 
     /**
      * @dataProvider provider_failed_login_users
      */
-    public function test_it_fails_if_user_password_is_invalid_or_user_inactive(User $user, $expect_code)
-    {
+    public function test_it_fails_if_user_password_is_invalid_or_user_inactive(
+        User $user,
+        $expect_code
+    ) {
         $this->password_hasher = new ReversingPassswordHasherStub;
         $this->user_repo->save($user);
         $response = $this->executeWith(['email' => 'foo@bar.com', 'password' => '12345678']);
@@ -107,8 +121,10 @@ class LoginInteractorTest extends AbstractInteractorTest
      *           ["foo@bar.com", "foO@BAR.com"]
      *           ["foo@bar.com", " foo@bar.com "]
      */
-    public function test_it_succeeds_with_correct_password_and_email_in_any_case($actual_email, $entered_email)
-    {
+    public function test_it_succeeds_with_correct_password_and_email_in_any_case(
+        $actual_email,
+        $entered_email
+    ) {
         $this->password_hasher = new ReversingPassswordHasherStub();
         $user                  = UserStub::activeWithPasswordHash($actual_email, '12345678');
         $this->user_repo->save($user);
@@ -123,8 +139,15 @@ class LoginInteractorTest extends AbstractInteractorTest
         $user                  = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
         $this->user_repo->save($user);
         $this->executeWith(['email' => 'foo@bar.com', 'password' => '87654321']);
-        $this->assertTrue($this->user_session->isAuthenticated(), 'User session should be authenticated');
-        $this->assertSame($user, $this->user_session->getUser(), 'User session should be authenticated');
+        $this->assertTrue(
+            $this->user_session->isAuthenticated(),
+            'User session should be authenticated'
+        );
+        $this->assertSame(
+            $user,
+            $this->user_session->getUser(),
+            'User session should be authenticated'
+        );
     }
 
     public function test_it_upgrades_password_hash_on_successful_login_if_required()
@@ -136,7 +159,8 @@ class LoginInteractorTest extends AbstractInteractorTest
         $this->user_repo->assertOneSaved($user);
     }
 
-    public function test_it_does_not_change_password_hash_on_successful_login_if_current_hash_is_secure()
+    public function test_it_does_not_change_password_hash_on_successful_login_if_current_hash_is_secure(
+    )
     {
         $this->password_hasher = ReversingPassswordHasherStub::withNoRehashNeeded();
         $user                  = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
@@ -158,8 +182,13 @@ class LoginInteractorTest extends AbstractInteractorTest
 
     public function test_it_does_not_send_any_user_notification_on_succesful_login()
     {
-        $this->email_verification = $this->getMockExpectingNoCalls(EmailVerificationInteractor::class);
-        $this->test_it_succeeds_with_correct_password_and_email_in_any_case('foo@bar.com', 'foo@bar.com');
+        $this->email_verification = $this->getMockExpectingNoCalls(
+            EmailVerificationInteractor::class
+        );
+        $this->test_it_succeeds_with_correct_password_and_email_in_any_case(
+            'foo@bar.com',
+            'foo@bar.com'
+        );
     }
 
     public function test_it_sends_user_notification_with_activation_url_on_inactive_user()
@@ -170,15 +199,29 @@ class LoginInteractorTest extends AbstractInteractorTest
     public function test_it_triggers_email_verification_for_password_reset_on_incorrect_password()
     {
         $this->email_verification = new EmailVerificationInteractorSpy;
-        $user = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
+        $user                     = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
         $this->user_repo->save($user);
         $this->executeWith(['email' => 'foo@bar.com', 'password' => 'wrong']);
-        $this->email_verification->assertExecutedOnceWith(EmailVerificationRequest::forPasswordReset($user));
+        $this->email_verification->assertExecutedOnceWith(
+            EmailVerificationRequest::forPasswordReset($user)
+        );
     }
 
-    public function test_its_password_reset_token_is_only_valid_until_the_current_password_is_changed()
+    public function test_it_identifies_if_password_reset_rate_limited_on_incorrect_password()
     {
-        $this->markTestIncomplete();
+        $retry_after              = new \DateTimeImmutable();
+        $this->email_verification = EmailVerificationInteractorSpy::willRespond(
+            EmailVerificationResponse::rateLimited('foo@bar.com', $retry_after)
+        );
+        $user                     = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
+        $this->user_repo->save($user);
+        $response = $this->executeWith(['email' => 'foo@bar.com', 'password' => 'wrong']);
+        $this->assertFailsWithCode(
+            LoginResponse::ERROR_PASSWORD_INCORRECT_RESET_THROTTLED,
+            $response
+        );
+        $this->assertSame($retry_after, $response->canRetryAfter());
+        $this->assertSame($user, $response->getUser());
     }
 
     public function setUp()
@@ -248,16 +291,25 @@ class EmailVerificationInteractorSpy extends EmailVerificationInteractor
      */
     protected $calls = [];
 
+    protected $response;
+
     public function __construct()
     {
 
+    }
+
+    public static function willRespond(EmailVerificationResponse $response)
+    {
+        $i           = new static;
+        $i->response = $response;
+        return $i;
     }
 
     public function execute(EmailVerificationRequest $request)
     {
         $this->calls[] = $request;
 
-        return EmailVerificationResponse::success($request->getEmail());
+        return $this->response ?: EmailVerificationResponse::success($request->getEmail());
     }
 
     public function assertExecutedOnceWith(EmailVerificationRequest $request)
