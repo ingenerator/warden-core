@@ -54,7 +54,7 @@ class EmailVerificationResponse extends AbstractResponse
         return $this->email;
     }
 
-    public function getRetryAfter()
+    public function canRetryAfter()
     {
         return $this->retry_after;
     }

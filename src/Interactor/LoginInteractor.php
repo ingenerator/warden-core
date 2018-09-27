@@ -94,7 +94,7 @@ class LoginInteractor
         $request = EmailVerificationRequest::forPasswordReset($user);
         $result  = $this->email_verification->execute($request);
         if ($result->isFailureCode(EmailVerificationResponse::ERROR_RATE_LIMITED)) {
-            return LoginResponse::passwordIncorrectRateLimited($user, $result->getRetryAfter());
+            return LoginResponse::passwordIncorrectRateLimited($user, $result->canRetryAfter());
         } elseif ( ! $result->wasSuccessful()) {
             throw new \UnexpectedValueException(
                 'Password reset verification failed: '.$result->getFailureCode()

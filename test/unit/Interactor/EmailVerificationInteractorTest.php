@@ -184,7 +184,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
             $result
         );
         $this->assertSame('foo@bar.com', $result->getEmail());
-        $this->assertSame($next_available, $result->getRetryAfter());
+        $this->assertSame($next_available, $result->canRetryAfter());
         $this->user_notification->assertNothingSent();
     }
 
