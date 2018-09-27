@@ -23,6 +23,7 @@ use Ingenerator\Warden\Core\UserSession\SimplePropertyUserSession;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use Ingenerator\Warden\Core\Validator\Validator;
 use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
+use test\mock\Ingenerator\Warden\Core\Repository\SaveSpyingUserRepository;
 use test\mock\Ingenerator\Warden\Core\Support\ReversingPassswordHasherStub;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
 
@@ -116,11 +117,6 @@ class LoginInteractorTest extends AbstractInteractorTest
         $this->assertSame($user, $response->getUser());
     }
 
-    public function test_it_trims_leading_and_trailing_whitespace_from_submitted_emails()
-    {
-        $this->markTestIncomplete();
-    }
-
     public function test_it_logs_in_user_in_session_on_successful_login()
     {
         $this->password_hasher = new ReversingPassswordHasherStub();
@@ -133,17 +129,31 @@ class LoginInteractorTest extends AbstractInteractorTest
 
     public function test_it_upgrades_password_hash_on_successful_login_if_required()
     {
-        $this->markTestIncomplete();
+        $this->password_hasher = ReversingPassswordHasherStub::withRehashNeeded();
+        $user                  = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
+        $this->user_repo       = new SaveSpyingUserRepository([$user]);
+        $this->executeWith(['email' => 'foo@bar.com', 'password' => '87654321']);
+        $this->user_repo->assertOneSaved($user);
     }
 
     public function test_it_does_not_change_password_hash_on_successful_login_if_current_hash_is_secure()
     {
-        $this->markTestIncomplete();
+        $this->password_hasher = ReversingPassswordHasherStub::withNoRehashNeeded();
+        $user                  = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
+        $this->user_repo       = new SaveSpyingUserRepository([$user]);
+        $this->executeWith(['email' => 'foo@bar.com', 'password' => '87654321']);
+        $this->user_repo->assertNothingSaved();
     }
 
-    public function test_it_does_not_change_password_hash_on_failed_login()
+    /**
+     * @dataProvider provider_failed_login_users
+     */
+    public function test_it_does_not_change_password_hash_on_failed_login(User $user, $expect_code)
     {
-        $this->markTestIncomplete();
+        $this->password_hasher = ReversingPassswordHasherStub::withRehashNeeded();
+        $this->user_repo       = new SaveSpyingUserRepository([$user]);
+        $this->executeWith(['email' => 'foo@bar.com', 'password' => '12345678']);
+        $this->user_repo->assertNothingSaved();
     }
 
     public function test_it_does_not_send_any_user_notification_on_succesful_login()

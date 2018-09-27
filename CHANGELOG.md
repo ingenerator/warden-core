@@ -1,8 +1,10 @@
 ### Unreleased
 
-* Rename UserNotificationMailer::send to ::sendWardenNotification
-* Rename UserRepository methods to ingenerator conventions
-* UserRepository now throws if loading user with an unknown ID
+* [Feature]  Automatically update user password hash on login if hash configuration has changed
+* [internal] Extract SaveSpyingUserRepository mock for reuse
+* [BREAKING] Rename UserNotificationMailer::send to ::sendWardenNotification
+* [BREAKING] Rename UserRepository methods to ingenerator conventions
+* [BREAKING] UserRepository now throws if loading user with an unknown ID
 
 ### v0.2.1 (2018-09-26)
 

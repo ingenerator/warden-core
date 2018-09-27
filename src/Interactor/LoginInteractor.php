@@ -78,6 +78,7 @@ class LoginInteractor
             return $this->handlePasswordIncorrect($user);
         }
 
+        $this->upgradePasswordHashIfRequired($user, $request->getPassword());
         $this->session->login($user);
 
         return LoginResponse::success($user);
@@ -93,9 +94,19 @@ class LoginInteractor
         $request = EmailVerificationRequest::forPasswordReset($user);
         $result  = $this->email_verification->execute($request);
         if ( ! $result->wasSuccessful()) {
-            throw new \UnexpectedValueException('Password reset verification failed: '.$result->getFailureCode());
+            throw new \UnexpectedValueException(
+                'Password reset verification failed: '.$result->getFailureCode()
+            );
         }
 
         return LoginResponse::passwordIncorrect($user);
+    }
+
+    protected function upgradePasswordHashIfRequired(User $user, $password)
+    {
+        if ($this->hasher->needsRehash($user->getPasswordHash())) {
+            $user->setPasswordHash($this->hasher->hash($password));
+            $this->user_repo->save($user);
+        }
     }
 }
