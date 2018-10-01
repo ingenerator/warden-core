@@ -15,6 +15,12 @@ class LoginResponse extends AbstractResponse
     const ERROR_NOT_ACTIVE         = 'not-active';
     const ERROR_NOT_REGISTERED     = 'not-registered';
     const ERROR_PASSWORD_INCORRECT = 'password-incorrect';
+    const ERROR_PASSWORD_INCORRECT_RESET_THROTTLED = 'password-incorrect-reset-throttled';
+
+    /**
+     * @var \DateTimeImmutable
+     */
+    protected $can_retry_after;
 
     /**
      * @var string
@@ -51,6 +57,16 @@ class LoginResponse extends AbstractResponse
         return $response;
     }
 
+    public static function passwordIncorrectRateLimited(User $user, \DateTimeImmutable $retry_after)
+    {
+        $response        = new static(FALSE, self::ERROR_PASSWORD_INCORRECT_RESET_THROTTLED);
+        $response->user  = $user;
+        $response->email = $user->getEmail();
+        $response->can_retry_after = $retry_after;
+
+        return $response;
+    }
+
     public static function success(User $user)
     {
         $response        = new static(TRUE);
@@ -79,5 +95,13 @@ class LoginResponse extends AbstractResponse
         }
 
         return $this->user;
+    }
+
+    /**
+     * @return \DateTimeImmutable
+     */
+    public function canRetryAfter()
+    {
+        return $this->can_retry_after;
     }
 }
