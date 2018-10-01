@@ -44,6 +44,25 @@ interface UrlProvider
     public function getAfterVerifyEmailSentUrl();
 
     /**
+     * @return mixed
+     */
+    public function getChangeEmailUrl();
+
+    /**
+     * The signed URL a user will use to verify a change of email.
+     *
+     * This needs to be fully qualified e.g. with scheme and host as it will be rendered into their
+     * email link.
+     *
+     * Commonly /profile/change-email
+     *
+     * @param array $params the registration details and confirmation token
+     *
+     * @return string
+     */
+    public function getCompleteChangeEmailUrl(array $params);
+
+    /**
      * The signed URL a user will use to complete their password reset. This needs to be
      * fully qualified e.g. with scheme and host as it will be rendered into their email
      * link.

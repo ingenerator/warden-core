@@ -74,7 +74,7 @@ class EmailVerificationInteractor
             return EmailVerificationResponse::validationFailed($errors);
         }
 
-        if ($request->isAction(EmailVerificationRequest::REGISTER) AND $this->isRegistered($request->getEmail())) {
+        if ($request->requiresUnregisteredEmail() AND $this->isRegistered($request->getEmail())) {
             return EmailVerificationResponse::alreadyRegistered($request->getEmail());
         }
 
@@ -116,24 +116,9 @@ class EmailVerificationInteractor
      */
     protected function buildSignedContinuationUrl(EmailVerificationRequest $request)
     {
-        $params       = ['email' => $request->getEmail()];
-        $token_params = array_merge($params, ['action' => $request->getAction()]);
-
-        if ($request->isAction(EmailVerificationRequest::REGISTER)) {
-            $params['token'] = $this->email_token_service->createToken($token_params);
-
-            return $this->url_provider->getCompleteRegistrationUrl($params);
-
-        } elseif ($request->isAction(EmailVerificationRequest::RESET_PASSWORD)) {
-            $token_params['current_pw_hash'] = $request->getCurrentValue();
-
-            $params['token'] = $this->email_token_service->createToken($token_params);
-
-            return $this->url_provider->getCompletePasswordResetUrl($params);
-
-        } else {
-            throw new \InvalidArgumentException('Unknown request type '.$request->getAction());
-        }
+        $params          = $request->getUrlParamsToSign();
+        $params['token'] = $this->email_token_service->createToken($params['token']);
+        return $request->getContinuationUrl($this->url_provider, $params);
     }
 
     /**

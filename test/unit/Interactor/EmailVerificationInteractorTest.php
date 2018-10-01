@@ -79,7 +79,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
         $this->assertSame('foo@bar.com', $request->getEmail());
     }
 
-    public function test_it_fails_if_requesting_register_verification_for_existing_user()
+    public function test_it_fails_if_requesting_verification_for_existing_email_when_required()
     {
         $this->user_repository->save(UserStub::withEmail('foo@bar.com'));
         $result = $this->newSubject()->execute(
@@ -111,7 +111,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
         $this->assertEquals(EmailVerificationRequest::REGISTER, $notification->getAction());
     }
 
-    public function test_it_provides_signed_continuation_url_for_registration()
+    public function test_it_provides_signed_continuation_url_based_on_request()
     {
         $this->url_provider        = new FixedUrlProviderStub;
         $this->email_token_service = new InsecureJSONTokenServiceStub;
@@ -122,23 +122,6 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
             [
                 'email' => 'foo@bar.com',
                 'token' => '{"email":"foo@bar.com","action":"register"}',
-            ],
-            $this->user_notification->getFirstNotification()
-        );
-    }
-
-    public function test_it_provides_signed_continuation_url_for_password_reset()
-    {
-        $this->url_provider        = new FixedUrlProviderStub;
-        $this->email_token_service = new InsecureJSONTokenServiceStub;
-        $user                      = UserStub::activeWithPasswordHash('foo@bar.com', 'hashyhash');
-        $this->executeWith(EmailVerificationRequest::forPasswordReset($user));
-
-        $this->assertContinuationUrlAndQuery(
-            '/complete-password-reset',
-            [
-                'email' => 'foo@bar.com',
-                'token' => '{"email":"foo@bar.com","action":"reset-password","current_pw_hash":"hashyhash"}',
             ],
             $this->user_notification->getFirstNotification()
         );
