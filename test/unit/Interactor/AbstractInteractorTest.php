@@ -20,7 +20,7 @@ abstract class AbstractInteractorTest extends \PHPUnit_Framework_TestCase
 
     protected function assertSuccessful(AbstractResponse $response)
     {
-        $this->assertTrue($response->wasSuccessful());
+        $this->assertTrue($response->wasSuccessful(), 'Expect success, got '.$response->getFailureCode());
     }
 
 }

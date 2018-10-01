@@ -1,5 +1,10 @@
 ### Unreleased
 
+* [Feature] Add new request, interactor etc for a user to change their email address with an
+  email verification step before the change is persisted. 
+* [BREAKING] Refactor responsibility for generating parameters for email verification links : 
+  now produced by the EmailVerificationRequest to allow for simpler addition of new kinds of 
+  links / tokens.
 * [BREAKING] Add leaky-bucket based rate limiting of email verifications sent to users:
   * Adds new constructor dependency to EmailVerificationInteractor
   * Adds new possible EmailVerificationResponse with status ERROR_RATE_LIMITED - which means

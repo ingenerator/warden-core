@@ -19,6 +19,7 @@ class Configuration
                 'user' => 'Ingenerator\Warden\Core\Entity\SimpleUser',
             ],
             'interactor_request' => [
+                'change_email'       => 'Ingenerator\Warden\Core\Interactor\ChangeEmailRequest',
                 'email_verification' => 'Ingenerator\Warden\Core\Interactor\EmailVerificationRequest',
                 'login'              => 'Ingenerator\Warden\Core\Interactor\LoginRequest',
                 'password_reset'     => 'Ingenerator\Warden\Core\Interactor\PasswordResetRequest',
