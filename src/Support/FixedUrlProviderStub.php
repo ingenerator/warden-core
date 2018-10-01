@@ -29,6 +29,11 @@ class FixedUrlProviderStub implements UrlProvider
         return '/change-email';
     }
 
+    public function getChangePasswordUrl()
+    {
+        return '/change-password';
+    }
+
     public function getCompleteChangeEmailUrl(array $params)
     {
         return '/complete-change-email?'.http_build_query($params);

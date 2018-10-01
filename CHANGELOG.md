@@ -1,5 +1,6 @@
 ### Unreleased
 
+* [Feature] Add new request, interactor etc for an authenticated user to change their password
 * [Feature] Add new request, interactor etc for a user to change their email address with an
   email verification step before the change is persisted. 
 * [BREAKING] Refactor responsibility for generating parameters for email verification links : 

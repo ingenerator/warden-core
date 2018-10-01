@@ -44,9 +44,14 @@ interface UrlProvider
     public function getAfterVerifyEmailSentUrl();
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getChangeEmailUrl();
+
+    /**
+     * @return string
+     */
+    public function getChangePasswordUrl();
 
     /**
      * The signed URL a user will use to verify a change of email.
