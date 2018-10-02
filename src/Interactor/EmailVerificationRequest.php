@@ -148,11 +148,11 @@ class EmailVerificationRequest extends AbstractRequest
         ];
 
         if ($this->isAction(static::RESET_PASSWORD)) {
-            $params['token']['current_pw_hash'] = $this->getUser()->getPasswordHash();
+            $params['token']['current_pw_hash'] = $this->requireUser()->getPasswordHash();
         } elseif ($this->isAction(static::CHANGE_EMAIL)) {
-            $params['user_id']                = $this->getUser()->getId();
-            $params['token']['user_id']       = $this->getUser()->getId();
-            $params['token']['current_email'] = $this->getUser()->getEmail();
+            $params['user_id']                = $this->requireUser()->getId();
+            $params['token']['user_id']       = $this->requireUser()->getId();
+            $params['token']['current_email'] = $this->requireUser()->getEmail();
         }
 
         return $params;
@@ -177,7 +177,7 @@ class EmailVerificationRequest extends AbstractRequest
     /**
      * @return \Ingenerator\Warden\Core\Entity\User
      */
-    protected function getUser()
+    protected function requireUser()
     {
         if ( ! $this->user) {
             throw new \UnexpectedValueException(
@@ -185,6 +185,14 @@ class EmailVerificationRequest extends AbstractRequest
             );
         }
 
+        return $this->user;
+    }
+
+    /**
+     * @return \Ingenerator\Warden\Core\Entity\User|NULL
+     */
+    public function getUser()
+    {
         return $this->user;
     }
 }

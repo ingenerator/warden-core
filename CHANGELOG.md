@@ -1,5 +1,7 @@
 ### Unreleased
 
+* [Feature] Email verification notifications now carry the user they are requested for - if any - to
+  allow use of user actual name in password reset etc notification messages
 * [BREAKING] Minimum password length is now 8 characters, html constraints in views will need to be
   updated.
 * [Feature] Add new request, interactor etc for an authenticated user to change their password
