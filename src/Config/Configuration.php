@@ -15,15 +15,16 @@ class Configuration
      */
     protected $config = [
         'classmap'     => [
-            'entity' => [
-                'user' => 'Ingenerator\Warden\Core\Entity\SimpleUser',
+            'entity'             => [
+                'user' => \Ingenerator\Warden\Core\Entity\SimpleUser::class,
             ],
             'interactor_request' => [
-                'change_email'       => 'Ingenerator\Warden\Core\Interactor\ChangeEmailRequest',
-                'email_verification' => 'Ingenerator\Warden\Core\Interactor\EmailVerificationRequest',
-                'login'              => 'Ingenerator\Warden\Core\Interactor\LoginRequest',
-                'password_reset'     => 'Ingenerator\Warden\Core\Interactor\PasswordResetRequest',
-                'user_registration'  => 'Ingenerator\Warden\Core\Interactor\UserRegistrationRequest',
+                'change_email'       => \Ingenerator\Warden\Core\Interactor\ChangeEmailRequest::class,
+                'change_password'    => \Ingenerator\Warden\Core\Interactor\ChangePasswordRequest::class,
+                'email_verification' => \Ingenerator\Warden\Core\Interactor\EmailVerificationRequest::class,
+                'login'              => \Ingenerator\Warden\Core\Interactor\LoginRequest::class,
+                'password_reset'     => \Ingenerator\Warden\Core\Interactor\PasswordResetRequest::class,
+                'user_registration'  => \Ingenerator\Warden\Core\Interactor\UserRegistrationRequest::class,
             ],
         ],
         'registration' => [
@@ -63,7 +64,9 @@ class Configuration
 
         $fqcn = $this->config['classmap'][$group][$class_alias];
         if ( ! class_exists($fqcn)) {
-            throw new \InvalidArgumentException("Class $fqcn mapped for $group.$class_alias is not defined");
+            throw new \InvalidArgumentException(
+                "Class $fqcn mapped for $group.$class_alias is not defined"
+            );
         }
 
         return $fqcn;
