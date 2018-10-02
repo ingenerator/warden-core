@@ -12,6 +12,7 @@ use Ingenerator\Warden\Core\Entity\User;
 class LoginResponse extends AbstractResponse
 {
 
+    const ERROR_EMAIL_VERIFICATION_FAILED = 'email-verification-failed';
     const ERROR_NOT_ACTIVE = 'not-active';
     const ERROR_NOT_ACTIVE_ACTIVATION_THROTTLED = 'not-active-activation-throttled';
     const ERROR_NOT_REGISTERED = 'not-registered';
@@ -32,6 +33,15 @@ class LoginResponse extends AbstractResponse
      * @var User
      */
     protected $user;
+
+    public static function emailFailed(User $user)
+    {
+        $instance        = new static(FALSE, self::ERROR_EMAIL_VERIFICATION_FAILED);
+        $instance->user  = $user;
+        $instance->email = $user->getEmail();
+
+        return $instance;
+    }
 
     public static function notActive(User $user)
     {
