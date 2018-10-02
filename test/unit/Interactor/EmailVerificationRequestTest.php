@@ -18,6 +18,7 @@ class EmailVerificationRequestTest extends TestCase
     public function provider_requires_unregistered_email()
     {
         return [
+            [EmailVerificationRequest::ACTIVATE_ACCOUNT, FALSE],
             [EmailVerificationRequest::CHANGE_EMAIL, TRUE],
             [EmailVerificationRequest::NEW_USER_INVITE, FALSE],
             [EmailVerificationRequest::REGISTER, TRUE],
@@ -36,6 +37,17 @@ class EmailVerificationRequestTest extends TestCase
     public function provider_url_parameters()
     {
         return [
+            [
+                EmailVerificationRequest::ACTIVATE_ACCOUNT,
+                [UserStub::fromArray(['id' => 122, 'email' => 'old@bar.com'])],
+                [
+                    'token'   => [
+                        'action'        => EmailVerificationRequest::ACTIVATE_ACCOUNT,
+                        'user_id'       => 122,
+                    ],
+                    'user_id' => 122,
+                ],
+            ],
             [
                 EmailVerificationRequest::CHANGE_EMAIL,
                 [UserStub::fromArray(['id' => 122, 'email' => 'old@bar.com']), 'new@bar.com'],
@@ -99,6 +111,7 @@ class EmailVerificationRequestTest extends TestCase
     public function provider_continuation_url()
     {
         return [
+            [EmailVerificationRequest::ACTIVATE_ACCOUNT, '/complete-activation?any=thing'],
             [EmailVerificationRequest::CHANGE_EMAIL, '/complete-change-email?any=thing'],
             [EmailVerificationRequest::NEW_USER_INVITE, '/complete-password-reset?any=thing'],
             [EmailVerificationRequest::REGISTER, '/complete-registration?any=thing'],
@@ -127,6 +140,10 @@ class EmailVerificationRequestTest extends TestCase
     protected function makeRequest($type, $args = [])
     {
         switch ($type) {
+            case EmailVerificationRequest::ACTIVATE_ACCOUNT:
+                $args = array_merge($args, [UserStub::withEmail('anyone@td.com')]);
+                return EmailVerificationRequest::forActivation($args[0]);
+
             case EmailVerificationRequest::CHANGE_EMAIL:
                 $args = array_merge($args, [UserStub::withEmail('anyone@td.com'), 'new@td.com']);
                 return EmailVerificationRequest::forChangeEmail($args[0], $args[1]);

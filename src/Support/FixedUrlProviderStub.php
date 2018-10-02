@@ -13,7 +13,6 @@ class FixedUrlProviderStub implements UrlProvider
     {
         return '/after-login?'.http_build_query(['email' => $user->getEmail()]);
     }
-
     public function getAfterLogoutUrl()
     {
         return '/after-logout';
@@ -32,6 +31,11 @@ class FixedUrlProviderStub implements UrlProvider
     public function getChangePasswordUrl()
     {
         return '/change-password';
+    }
+
+    public function getCompleteActivationUrl(array $params)
+    {
+        return '/complete-activation?'.http_build_query($params);
     }
 
     public function getCompleteChangeEmailUrl(array $params)
