@@ -89,15 +89,15 @@ class LoginInteractorTest extends AbstractInteractorTest
         return [
             [
                 UserStub::activeWithPasswordHash('foo@bar.com', 'abcdefgh'),
-                LoginResponse::ERROR_PASSWORD_INCORRECT
+                LoginResponse::ERROR_PASSWORD_INCORRECT,
             ],
             [
                 UserStub::inactiveWithPasswordHash('foo@bar.com', 'abcdefgh'),
-                LoginResponse::ERROR_NOT_ACTIVE
+                LoginResponse::ERROR_PASSWORD_INCORRECT,
             ],
             [
                 UserStub::inactiveWithPasswordHash('foo@bar.com', '87654321'),
-                LoginResponse::ERROR_NOT_ACTIVE
+                LoginResponse::ERROR_NOT_ACTIVE,
             ],
         ];
     }
@@ -191,15 +191,29 @@ class LoginInteractorTest extends AbstractInteractorTest
         );
     }
 
-    public function test_it_sends_user_notification_with_activation_url_on_inactive_user()
-    {
-        $this->markTestIncomplete();
-    }
-
-    public function test_it_triggers_email_verification_for_password_reset_on_incorrect_password()
+    public function test_it_sends_user_notification_with_activation_url_on_inactive_user_with_correct_password(
+    )
     {
         $this->email_verification = new EmailVerificationInteractorSpy;
-        $user                     = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
+        $user                     = UserStub::inactiveWithPasswordHash('foo@bar.com', '12345678');
+        $this->user_repo->save($user);
+        $this->executeWith(['email' => 'foo@bar.com', 'password' => '87654321']);
+        $this->email_verification->assertExecutedOnceWith(
+            EmailVerificationRequest::forActivation($user)
+        );
+    }
+
+    /**
+     * @testWith [true]
+     *           [false]
+     */
+    public function test_it_triggers_email_verification_for_password_reset_on_incorrect_password_whether_or_not_active(
+        $is_active
+    ) {
+        $this->email_verification = new EmailVerificationInteractorSpy;
+        $user                     = UserStub::fromArray(
+            ['email' => 'foo@bar.com', 'password_hash' => '12345678', 'is_active' => $is_active]
+        );
         $this->user_repo->save($user);
         $this->executeWith(['email' => 'foo@bar.com', 'password' => 'wrong']);
         $this->email_verification->assertExecutedOnceWith(
@@ -207,19 +221,34 @@ class LoginInteractorTest extends AbstractInteractorTest
         );
     }
 
-    public function test_it_identifies_if_password_reset_rate_limited_on_incorrect_password()
+    public function provider_throttled_verifications() {
+        return [
+            [
+                ['email' => 'foo@bar.com', 'password_hash' => '12345678', 'is_active' => FALSE],
+                ['email' => 'foo@bar.com', 'password' => '87654321'],
+                LoginResponse::ERROR_NOT_ACTIVE_ACTIVATION_THROTTLED,
+            ],
+            [
+                ['email' => 'foo@bar.com', 'password_hash' => '12345678', 'is_active' => TRUE],
+                ['email' => 'foo@bar.com', 'password' => 'wrong'],
+                LoginResponse::ERROR_PASSWORD_INCORRECT_RESET_THROTTLED,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provider_throttled_verifications
+     */
+    public function test_it_identifies_if_email_verification_throttled_for_activation_or_reset($user_data, $request, $expect_code)
     {
         $retry_after              = new \DateTimeImmutable();
         $this->email_verification = EmailVerificationInteractorSpy::willRespond(
             EmailVerificationResponse::rateLimited('foo@bar.com', $retry_after)
         );
-        $user                     = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
+        $user                     = UserStub::fromArray($user_data);
         $this->user_repo->save($user);
-        $response = $this->executeWith(['email' => 'foo@bar.com', 'password' => 'wrong']);
-        $this->assertFailsWithCode(
-            LoginResponse::ERROR_PASSWORD_INCORRECT_RESET_THROTTLED,
-            $response
-        );
+        $response = $this->executeWith($request);
+        $this->assertFailsWithCode($expect_code, $response);
         $this->assertSame($retry_after, $response->canRetryAfter());
         $this->assertSame($user, $response->getUser());
     }
@@ -234,6 +263,7 @@ class LoginInteractorTest extends AbstractInteractorTest
         $this->user_session       = new SimplePropertyUserSession;
     }
 
+
     protected function assertFailsWithCode($code, AbstractResponse $result)
     {
         $this->assertFalse(
@@ -242,7 +272,6 @@ class LoginInteractorTest extends AbstractInteractorTest
         );
         parent::assertFailsWithCode($code, $result);
     }
-
 
     /**
      * @param LoginRequest|array $request

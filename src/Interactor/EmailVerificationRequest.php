@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class EmailVerificationRequest extends AbstractRequest
 {
 
+    const ACTIVATE_ACCOUNT = 'activate-account';
     const NEW_USER_INVITE = 'new-user-invite';
     const REGISTER = 'register';
     const RESET_PASSWORD = 'reset-password';
@@ -40,6 +41,23 @@ class EmailVerificationRequest extends AbstractRequest
      * @var User
      */
     protected $user;
+
+    /**
+     * @param \Ingenerator\Warden\Core\Entity\User $user
+     *
+     * @return \Ingenerator\Warden\Core\Interactor\EmailVerificationRequest
+     */
+    public static function forActivation(User $user)
+    {
+        return static::fromArray(
+            [
+                'action'       => static::ACTIVATE_ACCOUNT,
+                'email'        => $user->getEmail(),
+                'email_action' => static::ACTIVATE_ACCOUNT,
+                'user'         => $user,
+            ]
+        );
+    }
 
     /**
      * @param \Ingenerator\Warden\Core\Entity\User $user
@@ -139,28 +157,50 @@ class EmailVerificationRequest extends AbstractRequest
      */
     public function getUrlParamsToSign()
     {
-        $params = [
-            'email' => $this->getEmail(),
-            'token' => [
-                'email'  => $this->getEmail(),
-                'action' => $this->getAction(),
-            ]
-        ];
-
-        if ($this->isAction(static::RESET_PASSWORD)) {
-            $params['token']['current_pw_hash'] = $this->requireUser()->getPasswordHash();
+        if ($this->isAction(static::ACTIVATE_ACCOUNT)) {
+            return [
+                'token'   => [
+                    'action'  => $this->getAction(),
+                    'user_id' => $this->requireUser()->getId()
+                ],
+                'user_id' => $this->requireUser()->getId(),
+            ];
+        } elseif ($this->isAction(static::RESET_PASSWORD)) {
+            return [
+                'email' => $this->getEmail(),
+                'token' => [
+                    'email'           => $this->getEmail(),
+                    'action'          => $this->getAction(),
+                    'current_pw_hash' => $this->requireUser()->getPasswordHash(),
+                ]
+            ];
         } elseif ($this->isAction(static::CHANGE_EMAIL)) {
-            $params['user_id']                = $this->requireUser()->getId();
-            $params['token']['user_id']       = $this->requireUser()->getId();
-            $params['token']['current_email'] = $this->requireUser()->getEmail();
+            return [
+                'email'   => $this->getEmail(),
+                'token'   => [
+                    'email'         => $this->getEmail(),
+                    'action'        => $this->getAction(),
+                    'user_id'       => $this->requireUser()->getId(),
+                    'current_email' => $this->requireUser()->getEmail(),
+                ],
+                'user_id' => $this->requireUser()->getId(),
+            ];
+        } else {
+            return [
+                'email' => $this->getEmail(),
+                'token' => [
+                    'email'  => $this->getEmail(),
+                    'action' => $this->getAction(),
+                ]
+            ];
         }
-
-        return $params;
     }
 
     public function getContinuationUrl(UrlProvider $urls, array $params)
     {
         switch ($this->getAction()) {
+            case static::ACTIVATE_ACCOUNT:
+                return $urls->getCompleteActivationUrl($params);
             case static::CHANGE_EMAIL:
                 return $urls->getCompleteChangeEmailUrl($params);
             case static::NEW_USER_INVITE:

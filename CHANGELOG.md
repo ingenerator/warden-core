@@ -1,5 +1,9 @@
 ### Unreleased
 
+* [Feature] Can now trigger and complete email verification for inactive accounts, including that an
+  activation is sent automatically on attempt to login to inactive account when the correct password 
+  is used. Using the wrong password (or if the account has no password) will result in a password 
+  reset which will also activate the account on completion.  
 * [Feature] Email verification notifications now carry the user they are requested for - if any - to
   allow use of user actual name in password reset etc notification messages
 * [BREAKING] Minimum password length is now 8 characters, html constraints in views will need to be

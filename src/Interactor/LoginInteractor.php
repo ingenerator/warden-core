@@ -70,12 +70,12 @@ class LoginInteractor
             return LoginResponse::notRegistered($request->getEmail());
         }
 
-        if ( ! $user->isActive()) {
-            return LoginResponse::notActive($user);
-        }
-
         if ( ! $this->hasher->isCorrect($request->getPassword(), $user->getPasswordHash())) {
             return $this->handlePasswordIncorrect($user);
+        }
+
+        if ( ! $user->isActive()) {
+            return $this->handleInactiveUserWithCorrectPassword($user);
         }
 
         $this->upgradePasswordHashIfRequired($user, $request->getPassword());
@@ -87,7 +87,7 @@ class LoginInteractor
     /**
      * @param User $user
      *
-     * @return static
+     * @return \Ingenerator\Warden\Core\Interactor\LoginResponse
      */
     protected function handlePasswordIncorrect(User $user)
     {
@@ -102,6 +102,21 @@ class LoginInteractor
         }
 
         return LoginResponse::passwordIncorrect($user);
+    }
+
+    protected function handleInactiveUserWithCorrectPassword(User $user)
+    {
+        $request = EmailVerificationRequest::forActivation($user);
+        $result  = $this->email_verification->execute($request);
+        if ($result->isFailureCode(EmailVerificationResponse::ERROR_RATE_LIMITED)) {
+            return LoginResponse::notActiveRateLimited($user, $result->canRetryAfter());
+        } elseif ( ! $result->wasSuccessful()) {
+            throw new \UnexpectedValueException(
+                'Activation send failed: '.$result->getFailureCode()
+            );
+        }
+
+        return LoginResponse::notActive($user);
     }
 
     protected function upgradePasswordHashIfRequired(User $user, $password)

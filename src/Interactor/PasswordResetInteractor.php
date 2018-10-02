@@ -75,6 +75,9 @@ class PasswordResetInteractor
             return PasswordResetResponse::invalidToken($request->getEmail());
         }
 
+        if ( ! $user->isActive()) {
+            $user->setActive(TRUE);
+        }
         $user->setPasswordHash($this->password_hasher->hash($request->getNewPassword()));
         $this->users_repo->save($user);
         $this->user_session->login($user);

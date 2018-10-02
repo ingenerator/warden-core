@@ -12,8 +12,9 @@ use Ingenerator\Warden\Core\Entity\User;
 class LoginResponse extends AbstractResponse
 {
 
-    const ERROR_NOT_ACTIVE         = 'not-active';
-    const ERROR_NOT_REGISTERED     = 'not-registered';
+    const ERROR_NOT_ACTIVE = 'not-active';
+    const ERROR_NOT_ACTIVE_ACTIVATION_THROTTLED = 'not-active-activation-throttled';
+    const ERROR_NOT_REGISTERED = 'not-registered';
     const ERROR_PASSWORD_INCORRECT = 'password-incorrect';
     const ERROR_PASSWORD_INCORRECT_RESET_THROTTLED = 'password-incorrect-reset-throttled';
 
@@ -34,8 +35,19 @@ class LoginResponse extends AbstractResponse
 
     public static function notActive(User $user)
     {
-        $instance       = new static(FALSE, self::ERROR_NOT_ACTIVE);
-        $instance->user = $user;
+        $instance        = new static(FALSE, self::ERROR_NOT_ACTIVE);
+        $instance->user  = $user;
+        $instance->email = $user->getEmail();
+
+        return $instance;
+    }
+
+    public static function notActiveRateLimited(USer $user, \DateTimeImmutable $retry_after)
+    {
+        $instance                  = new static(FALSE, self::ERROR_NOT_ACTIVE_ACTIVATION_THROTTLED);
+        $instance->user            = $user;
+        $instance->email           = $user->getEmail();
+        $instance->can_retry_after = $retry_after;
 
         return $instance;
     }
@@ -91,7 +103,9 @@ class LoginResponse extends AbstractResponse
     public function getUser()
     {
         if ( ! $this->user) {
-            throw new \BadMethodCallException('Cannot access user from '.__CLASS__.' with code '.$this->failure_code);
+            throw new \BadMethodCallException(
+                'Cannot access user from '.__CLASS__.' with code '.$this->failure_code
+            );
         }
 
         return $this->user;

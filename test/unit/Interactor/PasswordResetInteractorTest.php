@@ -124,10 +124,14 @@ class PasswordResetInteractorTest extends AbstractInteractorTest
         $this->user_repo->assertNothingSaved();
     }
 
-    public function test_it_stores_and_saves_new_user_password_hash_on_success()
+    /**
+     * @testWith [{"email": "any.where@some.net", "password_hash": "current_hash", "is_active": false}]
+     *           [{"email": "any.where@some.net", "password_hash": "current_hash", "is_active": true}]
+     */
+    public function test_it_stores_and_saves_new_user_password_hash_on_success_activating_if_required($user_data)
     {
         $this->password_hasher = new ReversingPassswordHasherStub;
-        $user                  = UserStub::activeWithPasswordHash('any.where@some.net', 'current_hash');
+        $user                  = UserStub::fromArray($user_data);
         $this->user_repo       = new SaveSpyingUserRepository([$user]);
         $this->executeWith(
             [
@@ -137,6 +141,7 @@ class PasswordResetInteractorTest extends AbstractInteractorTest
             ]
         );
         $this->assertSame('drowssap_wen', $user->getPasswordHash());
+        $this->assertTrue($user->isActive(), 'User should be active');
         $this->user_repo->assertOneSaved($user);
     }
 

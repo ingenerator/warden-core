@@ -53,6 +53,20 @@ interface UrlProvider
      */
     public function getChangePasswordUrl();
 
+
+    /**
+     * The signed URL an inactive user will use to verify their account.
+     *
+     * Should only be used when a user has a valid password - e.g. they've registered but have not
+     * completed verification. If created without a password e.g. by an admin / external integration
+     * they will be sent to a password reset instead.
+     *
+     * @param array $params
+     *
+     * @return string
+     */
+    public function getCompleteActivationUrl(array $params);
+
     /**
      * The signed URL a user will use to verify a change of email.
      *
