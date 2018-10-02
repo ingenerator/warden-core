@@ -19,7 +19,7 @@ class PasswordResetRequest extends AbstractRequest
     protected $email;
 
     /**
-     * @Assert\Length(min = 6)
+     * @Assert\Length(min = 8)
      * @Assert\NotBlank
      * @var string
      */

@@ -25,7 +25,7 @@ class UserRegistrationRequest extends AbstractRequest
     protected $email_confirmation_token;
 
     /**
-     * @Assert\Length(min = 6)
+     * @Assert\Length(min = 8)
      * @Assert\NotBlank
      * @var string
      */

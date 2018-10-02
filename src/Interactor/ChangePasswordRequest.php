@@ -19,7 +19,7 @@ class ChangePasswordRequest extends AbstractRequest
     protected $current_password;
 
     /**
-     * @Assert\Length(min = 6)
+     * @Assert\Length(min = 8)
      * @Assert\NotBlank
      * @var string
      */
