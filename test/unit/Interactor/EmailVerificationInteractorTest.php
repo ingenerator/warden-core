@@ -127,6 +127,38 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
         );
     }
 
+    public function provider_user_in_notification()
+    {
+        $user = UserStub::withEmail('foo@bar.com');
+        return [
+            [
+                EmailVerificationRequest::forRegistration('foo@bar.com'),
+                FALSE
+            ],
+            [
+                EmailVerificationRequest::forPasswordReset($user),
+                $user
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider provider_user_in_notification
+     */
+    public function test_it_populates_user_in_notification_if_present_in_request(
+        $request,
+        $expect_user
+    ) {
+        $this->executeWith($request);
+        $notification = $this->user_notification->getFirstNotification();
+        /** @var ConfirmationRequiredNotification $notification */
+        if ($expect_user === FALSE) {
+            $this->assertFalse($notification->hasRecipientUser());
+        } else {
+            $this->assertSame($expect_user, $notification->getRecipientUser());
+        }
+    }
+
     public function email_leaky_bucket_request_id()
     {
         return [

@@ -92,7 +92,8 @@ class EmailVerificationInteractor
             new ConfirmationRequiredNotification(
                 $request->getEmail(),
                 $request->getEmailAction(),
-                $url
+                $url,
+                $request->getUser()
             )
         );
 
