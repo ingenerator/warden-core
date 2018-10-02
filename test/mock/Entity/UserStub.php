@@ -15,7 +15,7 @@ class UserStub extends SimpleUser
     /**
      * @param array $params
      *
-     * @return \test\mock\Ingenerator\Warden\Core\Entity\UserStub
+     * @return static
      */
     public static function fromArray(array $params)
     {
@@ -31,16 +31,32 @@ class UserStub extends SimpleUser
         return $i;
     }
 
+    /**
+     * @param string $email
+     *
+     * @return static
+     */
     public static function withEmail($email)
     {
         return static::fromArray(['email' => $email]);
     }
 
+    /**
+     * @param string $id
+     *
+     * @return static
+     */
     public static function withId($id)
     {
         return static::fromArray(['id' => $id]);
     }
 
+    /**
+     * @param string $email
+     * @param string $password_hash
+     *
+     * @return static
+     */
     public static function activeWithPasswordHash($email, $password_hash)
     {
         return static::fromArray(
@@ -52,6 +68,12 @@ class UserStub extends SimpleUser
         );
     }
 
+    /**
+     * @param string $email
+     * @param string $password_hash
+     *
+     * @return static
+     */
     public static function inactiveWithPasswordHash($email, $password_hash)
     {
         return static::fromArray(
