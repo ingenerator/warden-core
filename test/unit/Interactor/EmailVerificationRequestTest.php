@@ -42,8 +42,8 @@ class EmailVerificationRequestTest extends TestCase
                 [UserStub::fromArray(['id' => 122, 'email' => 'old@bar.com'])],
                 [
                     'token'   => [
-                        'action'        => EmailVerificationRequest::ACTIVATE_ACCOUNT,
-                        'user_id'       => 122,
+                        'action'  => EmailVerificationRequest::ACTIVATE_ACCOUNT,
+                        'user_id' => 122,
                     ],
                     'user_id' => 122,
                 ],
@@ -66,9 +66,9 @@ class EmailVerificationRequestTest extends TestCase
                 EmailVerificationRequest::NEW_USER_INVITE,
                 [UserStub::fromArray(['id' => 122, 'email' => 'foo@bar.com'])],
                 [
-                    'email' => 'foo@bar.com',
-                    'token' => [
-                        'email'           => 'foo@bar.com',
+                    'user_id' => 122,
+                    'token'   => [
+                        'user_id'         => 122,
                         'action'          => EmailVerificationRequest::RESET_PASSWORD,
                         'current_pw_hash' => NULL
                     ]
@@ -87,11 +87,11 @@ class EmailVerificationRequestTest extends TestCase
             ],
             [
                 EmailVerificationRequest::RESET_PASSWORD,
-                [UserStub::activeWithPasswordHash('foo@bar.com', 'abcde')],
+                [UserStub::fromArray(['id' => 15, 'password_hash' => 'abcde'])],
                 [
-                    'email' => 'foo@bar.com',
-                    'token' => [
-                        'email'           => 'foo@bar.com',
+                    'user_id' => 15,
+                    'token'   => [
+                        'user_id'         => 15,
                         'action'          => EmailVerificationRequest::RESET_PASSWORD,
                         'current_pw_hash' => 'abcde'
                     ]

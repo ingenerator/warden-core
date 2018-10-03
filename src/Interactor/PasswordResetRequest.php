@@ -14,10 +14,10 @@ class PasswordResetRequest extends AbstractRequest implements TokenSignedRequest
 
     /**
      * @Assert\NotBlank
-     * @Assert\Email(checkMX = false)
+     * @Assert\Regex("/^\w+/")
      * @var string
      */
-    protected $email;
+    protected $user_id;
 
     /**
      * @Assert\Length(min = 8)
@@ -34,9 +34,9 @@ class PasswordResetRequest extends AbstractRequest implements TokenSignedRequest
     /**
      * @return string
      */
-    public function getEmail()
+    public function getUserId()
     {
-        return $this->email;
+        return $this->user_id;
     }
 
     /**

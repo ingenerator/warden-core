@@ -167,9 +167,9 @@ class EmailVerificationRequest extends AbstractRequest
             ];
         } elseif ($this->isAction(static::RESET_PASSWORD)) {
             return [
-                'email' => $this->getEmail(),
-                'token' => [
-                    'email'           => $this->getEmail(),
+                'user_id' => $this->requireUser()->getId(),
+                'token'   => [
+                    'user_id'         => $this->requireUser()->getId(),
                     'action'          => $this->getAction(),
                     'current_pw_hash' => $this->requireUser()->getPasswordHash(),
                 ]

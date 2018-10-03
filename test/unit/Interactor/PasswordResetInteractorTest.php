@@ -53,34 +53,43 @@ class PasswordResetInteractorTest extends AbstractInteractorTest
 
     public function test_it_is_initialisable()
     {
-        $this->assertInstanceOf('Ingenerator\Warden\Core\Interactor\PasswordResetInteractor', $this->newSubject());
+        $this->assertInstanceOf(
+            'Ingenerator\Warden\Core\Interactor\PasswordResetInteractor',
+            $this->newSubject()
+        );
     }
 
     public function test_it_fails_if_details_are_not_valid()
     {
         $this->validator = ValidatorStub::neverValid();
-        $this->assertFailsWithCode(PasswordResetResponse::ERROR_DETAILS_INVALID, $this->executeWith([]));
+        $this->assertFailsWithCode(
+            PasswordResetResponse::ERROR_DETAILS_INVALID,
+            $this->executeWith([])
+        );
     }
 
     public function test_it_fails_if_user_does_not_exist()
     {
         $result = $this->executeWith(
             [
-                'email' => 'unknown@foo.bar',
-                'token' => 'anything at all',
+                'user_id' => 999,
+                'token'   => 'anything at all',
             ]
         );
         $this->assertFailsWithCode(PasswordResetResponse::ERROR_UNKNOWN_USER, $result);
-        $this->assertSame('unknown@foo.bar', $result->getEmail());
     }
 
     public function test_it_fails_if_invalid_email_confirmation_token_presented()
     {
-        $this->user_repo->save(UserStub::activeWithPasswordHash('any.where@some.net', 'hashhash'));
+        $this->user_repo->save(
+            UserStub::fromArray(
+                ['id' => 15, 'password_hash' => 'hashhash', 'email' => 'any.where@some.net']
+            )
+        );
         $result = $this->executeWith(
             [
-                'email' => 'any.where@some.net',
-                'token' => $this->givenValidToken('someone.else@foo.bar', 'hashhash'),
+                'user_id' => 15,
+                'token'   => $this->givenValidToken(22, 'hashhash'),
             ]
         );
         $this->assertFailsWithCode(PasswordResetResponse::ERROR_TOKEN_INVALID, $result);
@@ -89,54 +98,48 @@ class PasswordResetInteractorTest extends AbstractInteractorTest
 
     public function test_it_fails_if_password_has_changed_since_token_was_generated()
     {
-        $this->user_repo->save(UserStub::activeWithPasswordHash('any.where@some.net', 'newhash'));
+        $this->user_repo->save(
+            UserStub::fromArray(
+                ['id' => 15, 'password_hash' => 'newhash', 'email' => 'any.where@some.net']
+            )
+        );
         $result = $this->executeWith(
             [
-                'email' => 'any.where@some.net',
-                'token' => $this->givenValidToken('any.where@some.net', 'oldhash'),
+                'user_id' => 15,
+                'token'   => $this->givenValidToken(15, 'oldhash'),
             ]
         );
         $this->assertFailsWithCode(PasswordResetResponse::ERROR_TOKEN_INVALID, $result);
         $this->assertSame('any.where@some.net', $result->getEmail());
     }
 
-    public function test_it_is_successful_if_request_matches_current_user_even_if_case_incorrect()
-    {
-        $this->user_repo->save(UserStub::activeWithPasswordHash('any.where@some.net', 'current_hash'));
-        $result = $this->executeWith(
-            [
-                'email' => 'any.Where@some.net',
-                'token' => $this->givenValidToken('any.where@some.net', 'current_hash'),
-            ]
-        );
-        $this->assertSuccessful($result);
-        $this->assertSame('any.where@some.net', $result->getEmail());
-    }
-
     public function test_it_does_not_change_user_password_on_failure()
     {
-        $user            = UserStub::activeWithPasswordHash('any.where@some.net', 'unchanged_hash');
+        $user            = UserStub::fromArray(
+            ['id' => 15, 'password_hash' => 'unchanged_hash', 'email' => 'any.where@some.net']
+        );
         $this->user_repo = new SaveSpyingUserRepository([$user]);
         $this->executeWith(
-            ['email' => 'any.where@some.net', 'token' => 'invalid']
+            ['user_id' => 15, 'token' => 'invalid']
         );
         $this->assertSame('unchanged_hash', $user->getPasswordHash());
         $this->user_repo->assertNothingSaved();
     }
 
     /**
-     * @testWith [{"email": "any.where@some.net", "password_hash": "current_hash", "is_active": false}]
-     *           [{"email": "any.where@some.net", "password_hash": "current_hash", "is_active": true}]
+     * @testWith [{"id": 19, "email": "any.where@some.net", "password_hash": "current_hash", "is_active": false}]
+     *           [{"id": 19, "email": "any.where@some.net", "password_hash": "current_hash", "is_active": true}]
      */
-    public function test_it_stores_and_saves_new_user_password_hash_on_success_activating_if_required($user_data)
-    {
+    public function test_it_stores_and_saves_new_user_password_hash_on_success_activating_if_required(
+        $user_data
+    ) {
         $this->password_hasher = new ReversingPassswordHasherStub;
         $user                  = UserStub::fromArray($user_data);
         $this->user_repo       = new SaveSpyingUserRepository([$user]);
         $this->executeWith(
             [
-                'email'        => 'any.where@some.net',
-                'token'        => $this->givenValidToken('any.where@some.net', 'current_hash'),
+                'user_id'      => 19,
+                'token'        => $this->givenValidToken(19, 'current_hash'),
                 'new_password' => 'new_password',
             ]
         );
@@ -147,20 +150,24 @@ class PasswordResetInteractorTest extends AbstractInteractorTest
 
     public function test_it_does_not_login_user_on_failure()
     {
-        $user = UserStub::activeWithPasswordHash('any.where@some.net', 'unchanged_hash');
+        $user = UserStub::fromArray(
+            ['id' => 15, 'password_hash' => 'unchanged_hash', 'email' => 'any.where@some.net']
+        );
         $this->user_repo->save($user);
-        $this->executeWith(['email' => 'any.where@some.net', 'token' => 'invalid']);
+        $this->executeWith(['user_id' => 15, 'token' => 'invalid']);
         $this->assertFalse($this->user_session->isAuthenticated());
     }
 
     public function test_it_logs_in_user_on_success()
     {
-        $user = UserStub::activeWithPasswordHash('any.where@some.net', 'current_hash');
+        $user = UserStub::fromArray(
+            ['id' => 15, 'password_hash' => 'current_hash', 'email' => 'any.where@some.net']
+        );
         $this->user_repo->save($user);
         $this->executeWith(
             [
-                'email' => 'any.where@some.net',
-                'token' => $this->givenValidToken('any.where@some.net', 'current_hash'),
+                'user_id' => 15,
+                'token'   => $this->givenValidToken(15, 'current_hash'),
             ]
         );
         $this->assertSame($user, $this->user_session->getUser());
@@ -198,16 +205,16 @@ class PasswordResetInteractorTest extends AbstractInteractorTest
     }
 
     /**
-     * @param string $email
+     * @param string $user_id
      *
      * @return string
      */
-    protected function givenValidToken($email, $old_hash)
+    protected function givenValidToken($user_id, $old_hash)
     {
         return $this->email_token_service->createToken(
             [
                 'action'          => EmailVerificationRequest::RESET_PASSWORD,
-                'email'           => $email,
+                'user_id'         => $user_id,
                 'current_pw_hash' => $old_hash,
             ]
         );
