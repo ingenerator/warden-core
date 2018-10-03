@@ -14,17 +14,12 @@ use Ingenerator\Warden\Core\Support\EmailConfirmationTokenService;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use Ingenerator\Warden\Core\Validator\Validator;
 
-class ChangeEmailInteractor
+class ChangeEmailInteractor extends AbstractTokenValidatingInteractor
 {
     /**
      * @var \Ingenerator\Warden\Core\Validator\Validator
      */
     protected $validator;
-
-    /**
-     * @var \Ingenerator\Warden\Core\Support\EmailConfirmationTokenService
-     */
-    protected $email_token_service;
 
     /**
      * @var \Ingenerator\Warden\Core\Repository\UserRepository
@@ -42,8 +37,8 @@ class ChangeEmailInteractor
         UserRepository $users_repo,
         UserSession $user_session
     ) {
+        parent::__construct($email_token_service);
         $this->validator           = $validator;
-        $this->email_token_service = $email_token_service;
         $this->users_repo          = $users_repo;
         $this->user_session        = $user_session;
     }
@@ -61,7 +56,10 @@ class ChangeEmailInteractor
 
         $user = $this->users_repo->load($request->getUserId());
 
-        if ( ! $this->isTokenValid($request, $user)) {
+        if ( ! $this->isTokenValid(
+            EmailVerificationRequest::forChangeEmail($user, $request->getEmail()),
+            $request
+        )) {
             return ChangeEmailResponse::invalidToken($request->getEmail());
         }
 
@@ -71,18 +69,6 @@ class ChangeEmailInteractor
         } catch (DuplicateUserException $e) {
             return ChangeEmailResponse::duplicateUserEmail($request->getEmail());
         }
-    }
-
-    protected function isTokenValid(ChangeEmailRequest $request, User $user)
-    {
-        $params = [
-            'email'         => $request->getEmail(),
-            'action'        => EmailVerificationRequest::CHANGE_EMAIL,
-            'user_id'       => $user->getId(),
-            'current_email' => $user->getEmail(),
-        ];
-
-        return $this->email_token_service->isValid($request->getToken(), $params);
     }
 
     /**

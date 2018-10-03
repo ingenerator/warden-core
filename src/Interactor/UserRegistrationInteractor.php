@@ -15,17 +15,12 @@ use Ingenerator\Warden\Core\Support\PasswordHasher;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use Ingenerator\Warden\Core\Validator\Validator;
 
-class UserRegistrationInteractor
+class UserRegistrationInteractor extends AbstractTokenValidatingInteractor
 {
     /**
      * @var Configuration
      */
     protected $configuration;
-
-    /**
-     * @var EmailConfirmationTokenService
-     */
-    protected $email_token_service;
 
     /**
      * @var PasswordHasher
@@ -55,12 +50,12 @@ class UserRegistrationInteractor
         UserRepository $users_repo,
         UserSession $user_session
     ) {
-        $this->validator           = $validator;
-        $this->users_repo          = $users_repo;
-        $this->password_hasher     = $password_hasher;
-        $this->email_token_service = $email_token_service;
-        $this->configuration       = $configuration;
-        $this->user_session        = $user_session;
+        parent::__construct($email_token_service);
+        $this->validator       = $validator;
+        $this->users_repo      = $users_repo;
+        $this->password_hasher = $password_hasher;
+        $this->configuration   = $configuration;
+        $this->user_session    = $user_session;
     }
 
     /**
@@ -74,12 +69,13 @@ class UserRegistrationInteractor
             return UserRegistrationResponse::validationFailed($errors);
         }
 
-        if ($token = $request->getEmailConfirmationToken()) {
-            if ( ! $this->isTokenValid($request)) {
-                return UserRegistrationResponse::badEmailConfirmation();
+        $token_state = $this->validateToken($request);
+        if ( ! $token_state->isValid()) {
+            if ($request->hasToken()) {
+                return UserRegistrationResponse::badEmailConfirmation($request->getEmail());
+            } else {
+                return UserRegistrationResponse::emailConfirmationRequired();
             }
-        } elseif ($this->configuration->isEmailConfirmationRequiredToRegister()) {
-            return UserRegistrationResponse::emailConfirmationRequired();
         }
 
         try {
@@ -119,23 +115,32 @@ class UserRegistrationInteractor
      */
     protected function setInitialActiveState(User $user, UserRegistrationRequest $request)
     {
-        $user->setActive((bool) $request->getEmailConfirmationToken());
+        $user->setActive((bool) $request->getToken());
     }
 
     /**
-     * @param UserRegistrationRequest $request
+     * Validate the token with the request.
      *
-     * @return mixed
+     * Note, if confirmation is not required then an empty token will be validated as OK
+     *
+     * @param \Ingenerator\Warden\Core\Interactor\UserRegistrationRequest $request
+     *
+     * @return \Ingenerator\Warden\Core\Interactor\TokenValidationResult
      */
-    protected function isTokenValid(UserRegistrationRequest $request)
+    public function validateToken(UserRegistrationRequest $request)
     {
-        return $this->email_token_service->isValid(
-            $request->getEmailConfirmationToken(),
-            [
-                'action' => EmailVerificationRequest::REGISTER,
-                'email'  => $request->getEmail(),
-            ]
-        );
+        if ($request->hasToken()) {
+            return TokenValidationResult::withNoUser(
+                $this->isTokenValid(
+                    EmailVerificationRequest::forRegistration($request->getEmail()),
+                    $request
+                )
+            );
+        } elseif ( ! $this->configuration->isEmailConfirmationRequiredToRegister()) {
+            return TokenValidationResult::withNoUser(TRUE);
+        } else {
+            return TokenValidationResult::withNoUser(FALSE);
+        }
     }
 
 }

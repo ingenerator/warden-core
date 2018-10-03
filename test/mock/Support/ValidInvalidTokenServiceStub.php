@@ -3,21 +3,26 @@
  * @author    Andrew Coulton <andrew@ingenerator.com>
  * @licence   proprietary
  */
+
 namespace test\mock\Ingenerator\Warden\Core\Support;
+
 
 use Ingenerator\Warden\Core\Support\EmailConfirmationTokenService;
 
-class InsecureJSONTokenServiceStub implements EmailConfirmationTokenService
+class ValidInvalidTokenServiceStub implements EmailConfirmationTokenService
 {
+    public function __construct()
+    {
+    }
+
     public function createToken($params)
     {
-        ksort($params);
-        return json_encode($params);
+        return 'valid';
     }
 
     public function isValid($token, $params)
     {
-        return $token === $this->createToken($params);
+        return $token === 'valid';
     }
 
 }

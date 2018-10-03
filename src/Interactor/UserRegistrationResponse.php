@@ -11,9 +11,9 @@ use Ingenerator\Warden\Core\Entity\User;
 
 class UserRegistrationResponse extends AbstractResponse
 {
-    const ERROR_ALREADY_REGISTERED         = 'already-registered';
+    const ERROR_ALREADY_REGISTERED = 'already-registered';
     const ERROR_EMAIL_CONFIRMATION_INVALID = 'email-confirm-invalid';
-    const ERROR_EMAIL_UNCONFIRMED          = 'email-confirm-required';
+    const ERROR_EMAIL_UNCONFIRMED = 'email-confirm-required';
 
     /**
      * @var User
@@ -25,9 +25,12 @@ class UserRegistrationResponse extends AbstractResponse
      */
     protected $email;
 
-    public static function badEmailConfirmation()
+    public static function badEmailConfirmation($email)
     {
-        return new static(FALSE, static::ERROR_EMAIL_CONFIRMATION_INVALID);
+        $i        = new static(FALSE, static::ERROR_EMAIL_CONFIRMATION_INVALID);
+        $i->email = $email;
+        
+        return $i;
     }
 
     public static function emailConfirmationRequired()
@@ -37,7 +40,7 @@ class UserRegistrationResponse extends AbstractResponse
 
     public static function duplicateUserEmail($email)
     {
-        $instance = new static(FALSE, static::ERROR_ALREADY_REGISTERED);
+        $instance        = new static(FALSE, static::ERROR_ALREADY_REGISTERED);
         $instance->email = $email;
         return $instance;
     }
@@ -57,7 +60,7 @@ class UserRegistrationResponse extends AbstractResponse
     {
         return $this->email;
     }
-    
+
     /**
      * @return User
      */

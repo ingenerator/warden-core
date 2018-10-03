@@ -33,12 +33,9 @@ class PasswordResetResponse extends AbstractResponse
         return $instance;
     }
 
-    public static function unknownUser($email)
+    public static function unknownUser()
     {
-        $instance        = new static(FALSE, static::ERROR_UNKNOWN_USER);
-        $instance->email = $email;
-
-        return $instance;
+        return new static(FALSE, static::ERROR_UNKNOWN_USER);
     }
 
     /**

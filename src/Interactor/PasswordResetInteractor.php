@@ -7,20 +7,15 @@
 namespace Ingenerator\Warden\Core\Interactor;
 
 
-use Ingenerator\Warden\Core\Entity\User;
+use Ingenerator\Warden\Core\Repository\UnknownUserException;
 use Ingenerator\Warden\Core\Repository\UserRepository;
 use Ingenerator\Warden\Core\Support\EmailConfirmationTokenService;
 use Ingenerator\Warden\Core\Support\PasswordHasher;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use Ingenerator\Warden\Core\Validator\Validator;
 
-class PasswordResetInteractor
+class PasswordResetInteractor extends AbstractTokenValidatingInteractor
 {
-
-    /**
-     * @var EmailConfirmationTokenService
-     */
-    protected $email_token_service;
 
     /**
      * @var PasswordHasher
@@ -49,11 +44,11 @@ class PasswordResetInteractor
         UserRepository $users_repo,
         UserSession $user_session
     ) {
-        $this->validator           = $validator;
-        $this->users_repo          = $users_repo;
-        $this->password_hasher     = $password_hasher;
-        $this->email_token_service = $email_token_service;
-        $this->user_session        = $user_session;
+        parent::__construct($email_token_service);
+        $this->validator       = $validator;
+        $this->users_repo      = $users_repo;
+        $this->password_hasher = $password_hasher;
+        $this->user_session    = $user_session;
     }
 
     /**
@@ -67,14 +62,17 @@ class PasswordResetInteractor
             return PasswordResetResponse::validationFailed($errors);
         }
 
-        if ( ! $user = $this->users_repo->findByEmail($request->getEmail())) {
-            return PasswordResetResponse::unknownUser($request->getEmail());
+        $token_state = $this->validateToken($request);
+
+        if ( ! $token_state->hasUser()) {
+            return PasswordResetResponse::unknownUser();
         }
 
-        if ( ! $this->isTokenValid($request->getToken(), $user)) {
-            return PasswordResetResponse::invalidToken($request->getEmail());
+        if ( ! $token_state->isValid()) {
+            return PasswordResetResponse::invalidToken($token_state->getUserEmail());
         }
 
+        $user = $token_state->getUser();
         if ( ! $user->isActive()) {
             $user->setActive(TRUE);
         }
@@ -85,14 +83,33 @@ class PasswordResetInteractor
         return PasswordResetResponse::success($user->getEmail());
     }
 
-    protected function isTokenValid($token, User $user)
+    /**
+     * @param \Ingenerator\Warden\Core\Interactor\PasswordResetRequest $request
+     *
+     * @return \Ingenerator\Warden\Core\Interactor\TokenValidationResult
+     */
+    public function validateToken(PasswordResetRequest $request)
     {
-        $params = [
-            'action'          => EmailVerificationRequest::RESET_PASSWORD,
-            'email'           => $user->getEmail(),
-            'current_pw_hash' => $user->getPasswordHash(),
-        ];
-
-        return $this->email_token_service->isValid($token, $params);
+        if ($user = $this->getRequestedUser($request)) {
+            return TokenValidationResult::forUser(
+                $user,
+                $this->isTokenValid(
+                    EmailVerificationRequest::forPasswordReset($user),
+                    $request
+                )
+            );
+        } else {
+            return TokenValidationResult::withNoUser(FALSE);
+        }
     }
+
+    protected function getRequestedUser(PasswordResetRequest $request)
+    {
+        try {
+            return $this->users_repo->load($request->getUserId());
+        } catch (UnknownUserException $e) {
+            return NULL;
+        }
+    }
+
 }
