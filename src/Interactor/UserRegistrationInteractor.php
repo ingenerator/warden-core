@@ -72,7 +72,7 @@ class UserRegistrationInteractor extends AbstractTokenValidatingInteractor
         $token_state = $this->validateToken($request);
         if ( ! $token_state->isValid()) {
             if ($request->hasToken()) {
-                return UserRegistrationResponse::badEmailConfirmation();
+                return UserRegistrationResponse::badEmailConfirmation($request->getEmail());
             } else {
                 return UserRegistrationResponse::emailConfirmationRequired();
             }
