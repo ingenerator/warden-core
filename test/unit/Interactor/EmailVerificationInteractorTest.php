@@ -18,8 +18,8 @@ use Ingenerator\Warden\Core\Repository\ArrayUserRepository;
 use Ingenerator\Warden\Core\Repository\UserRepository;
 use Ingenerator\Warden\Core\Support\EmailConfirmationTokenService;
 use Ingenerator\Warden\Core\Support\FixedUrlProviderStub;
-use PHPUnit\Framework\Assert;
 use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
+use test\mock\Ingenerator\Warden\Core\RateLimit\LeakyBucketStub;
 use test\mock\Ingenerator\Warden\Core\Support\InsecureJSONTokenServiceStub;
 use test\mock\Ingenerator\Warden\Core\Support\UserNotificationMailerSpy;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
@@ -182,7 +182,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
     {
         $this->leaky_bucket = LeakyBucketStub::alwaysResponds(LeakyBucketStatus::allowed());
         $this->executeWith($request);
-        $this->leaky_bucket->assertRequestedOnce($expect_type, $expect_requester);
+        $this->leaky_bucket->assertOnlyRequestedOnce($expect_type, $expect_requester);
     }
 
     public function test_it_returns_rate_limited_response_without_sending_if_rate_limit_exceeded()
@@ -264,42 +264,5 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
             $query_parts
         );
     }
-
-}
-
-class LeakyBucketStub implements LeakyBucket
-{
-
-    protected $calls = [];
-
-    /**
-     * @var LeakyBucketStatus
-     */
-    protected $status;
-
-    public static function alwaysResponds(LeakyBucketStatus $status)
-    {
-        $i         = new static;
-        $i->status = $status;
-        return $i;
-    }
-
-    /**
-     * @param string $request_type
-     * @param string $requester_id
-     *
-     * @return LeakyBucketStatus
-     */
-    public function attemptRequest($request_type, $requester_id)
-    {
-        $this->calls[] = ['type' => $request_type, 'id' => $requester_id];
-        return $this->status;
-    }
-
-    public function assertRequestedOnce($request_type, $requester_id)
-    {
-        Assert::assertEquals([['type' => $request_type, 'id' => $requester_id]], $this->calls);
-    }
-
 
 }

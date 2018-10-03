@@ -16,6 +16,8 @@ use Ingenerator\Warden\Core\Interactor\EmailVerificationResponse;
 use Ingenerator\Warden\Core\Interactor\LoginInteractor;
 use Ingenerator\Warden\Core\Interactor\LoginRequest;
 use Ingenerator\Warden\Core\Interactor\LoginResponse;
+use Ingenerator\Warden\Core\RateLimit\LeakyBucket;
+use Ingenerator\Warden\Core\RateLimit\LeakyBucketStatus;
 use Ingenerator\Warden\Core\Repository\ArrayUserRepository;
 use Ingenerator\Warden\Core\Repository\UserRepository;
 use Ingenerator\Warden\Core\Support\PasswordHasher;
@@ -23,6 +25,7 @@ use Ingenerator\Warden\Core\UserSession\SimplePropertyUserSession;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use Ingenerator\Warden\Core\Validator\Validator;
 use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
+use test\mock\Ingenerator\Warden\Core\RateLimit\LeakyBucketStub;
 use test\mock\Ingenerator\Warden\Core\Repository\SaveSpyingUserRepository;
 use test\mock\Ingenerator\Warden\Core\Support\ReversingPassswordHasherStub;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
@@ -33,6 +36,11 @@ class LoginInteractorTest extends AbstractInteractorTest
      * @var EmailVerificationInteractorSpy
      */
     protected $email_verification;
+
+    /**
+     * @var LeakyBucket
+     */
+    protected $leaky_bucket;
 
     /**
      * @var PasswordHasher
@@ -131,6 +139,93 @@ class LoginInteractorTest extends AbstractInteractorTest
         $response = $this->executeWith(['email' => $entered_email, 'password' => '87654321']);
         $this->assertSuccessful($response);
         $this->assertSame($user, $response->getUser());
+    }
+
+    public function test_it_rate_limits_by_user_email()
+    {
+        $this->leaky_bucket = LeakyBucketStub::alwaysResponds(LeakyBucketStatus::allowed());
+        $this->executeWith(['email' => 'foo@bar.com', 'password' => '87654321']);
+        $this->leaky_bucket->assertOnlyRequestedOneOfType('warden.login.user', 'foo@bar.com');
+    }
+
+    public function test_it_rate_limits_by_global_rate()
+    {
+        $this->leaky_bucket = LeakyBucketStub::alwaysResponds(LeakyBucketStatus::allowed());
+        $this->executeWith(['email' => 'foo@bar.com', 'password' => '87654321']);
+        $this->leaky_bucket->assertOnlyRequestedOneOfType('warden.login.global', 'all');
+    }
+
+    public function provider_rate_limit_fails()
+    {
+        $plus_1 = new \DateTimeImmutable('+1 minutes');
+        $plus_2 = new \DateTimeImmutable('+2 minutes');
+        return [
+            [
+                // Both OK
+                [
+                    'warden.login.global' => ['all' => FALSE],
+                    'warden.login.user'   => ['foo@bar.com' => FALSE]
+                ],
+                FALSE,
+                NULL,
+                NULL,
+            ],
+            [
+                // Too many by user
+                [
+                    'warden.login.global' => ['all' => FALSE],
+                    'warden.login.user'   => ['foo@bar.com' => $plus_1]
+                ],
+                TRUE,
+                $plus_1,
+                'warden.login.user'
+            ],
+            [
+                // Too many globally
+                [
+                    'warden.login.global' => ['all' => $plus_2],
+                    'warden.login.user'   => ['foo@bar.com' => FALSE]
+                ],
+                TRUE,
+                $plus_2,
+                'warden.login.global'
+            ],
+            [
+                // Too many by user and globally, retry is the max
+                [
+                    'warden.login.global' => ['all' => $plus_2],
+                    'warden.login.user'   => ['foo@bar.com' => $plus_1]
+                ],
+                TRUE,
+                $plus_2,
+                'warden.login.user,warden.login.global'
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider provider_rate_limit_fails
+     */
+    public function test_it_fails_if_any_rate_limit_fails(
+        $limits,
+        $expect_fail,
+        $expect_retry,
+        $expect_detail
+    ) {
+        $this->password_hasher = new ReversingPassswordHasherStub();
+        $user                  = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
+        $this->user_repo->save($user);
+        $this->leaky_bucket = LeakyBucketStub::withBuckets($limits);
+        $result             = $this->executeWith(
+            ['email' => 'foo@bar.com', 'password' => '87654321']
+        );
+        if ($expect_fail) {
+            $this->assertFailsWithCode(LoginResponse::ERROR_RATE_LIMITED, $result);
+        } else {
+            $this->assertTrue($result->wasSuccessful(), 'Should succeed');
+        }
+        $this->assertEquals($expect_retry, $result->canRetryAfter());
+        $this->assertSame($expect_detail, $result->getFailureDetail());
     }
 
     public function test_it_logs_in_user_in_session_on_successful_login()
@@ -297,6 +392,7 @@ class LoginInteractorTest extends AbstractInteractorTest
     {
         parent::setUp();
         $this->email_verification = new EmailVerificationInteractorSpy;
+        $this->leaky_bucket       = LeakyBucketStub::alwaysResponds(LeakyBucketStatus::allowed());
         $this->validator          = ValidatorStub::alwaysValid();
         $this->password_hasher    = new ReversingPassswordHasherStub;
         $this->user_repo          = new ArrayUserRepository;
@@ -330,6 +426,7 @@ class LoginInteractorTest extends AbstractInteractorTest
     {
         return new LoginInteractor(
             $this->validator,
+            $this->leaky_bucket,
             $this->user_repo,
             $this->password_hasher,
             $this->user_session,

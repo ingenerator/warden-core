@@ -1,5 +1,8 @@
 ### Unreleased
 
+* [BREAKING] Login attempts are now rate limited by user-email and globally. You will need to provide 
+  configuration for the `warden.login.global` and `warden.login.user` bucket types, and to handle
+  the LoginResponse::ERROR_RATE_LIMITED errors.
 * [Internal BREAKING] PasswordResetInteractor and UserRegistrationInteractor now provide endpoints to 
   validate the token and token parameters without calling the main usecase - this allows for controllers
   to show an error and handle invalid tokens immediately rather than after the user submits the form.
