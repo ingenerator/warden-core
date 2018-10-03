@@ -50,6 +50,14 @@ class UserRegistrationRequest extends AbstractRequest implements TokenSignedRequ
     }
 
     /**
+     * @return bool
+     */
+    public function hasToken()
+    {
+        return ! empty($this->email_confirmation_token);
+    }
+
+    /**
      * @return string
      */
     public function getPassword()

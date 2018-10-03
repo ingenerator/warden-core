@@ -69,9 +69,13 @@ class UserRegistrationInteractor extends AbstractTokenValidatingInteractor
             return UserRegistrationResponse::validationFailed($errors);
         }
 
-        if ($this->hasInvalidToken($request)) {
-            return UserRegistrationResponse::badEmailConfirmation();
-
+        if ($request->hasToken()) {
+            if ( ! $this->isTokenValid(
+                EmailVerificationRequest::forRegistration($request->getEmail()),
+                $request
+            )) {
+                return UserRegistrationResponse::badEmailConfirmation();
+            }
         } elseif ($this->configuration->isEmailConfirmationRequiredToRegister()) {
             return UserRegistrationResponse::emailConfirmationRequired();
         }
@@ -88,18 +92,6 @@ class UserRegistrationInteractor extends AbstractTokenValidatingInteractor
         }
 
         return UserRegistrationResponse::success($user);
-    }
-
-    protected function hasInvalidToken(UserRegistrationRequest $request)
-    {
-        if (empty($request->getToken())) {
-            return FALSE;
-        }
-
-        return ! $this->isTokenValid(
-            EmailVerificationRequest::forRegistration($request->getEmail()),
-            $request
-        );
     }
 
     /**

@@ -137,8 +137,13 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
         $this->assertFailsWithCode(UserRegistrationResponse::ERROR_EMAIL_UNCONFIRMED, $result);
     }
 
-    public function test_it_creates_active_user_if_valid_email_confirmation_token_provided()
+    /**
+     * @testWith [true]
+     *           [false]
+     */
+    public function test_it_creates_active_user_if_valid_email_confirmation_token_provided_whether_required_or_not($token_required)
     {
+        $this->config['registration']['require_confirmed_email'] = $token_required;
         $result = $this->executeWith(
             [
                 'email'                    => 'foo@bar.net',
