@@ -22,6 +22,8 @@ interface UserRepository
     /**
      * @param string $id
      *
+     * @throws \Ingenerator\Warden\Core\Repository\UnknownUserException if user not found
+     *
      * @return User
      */
     public function load($id);
