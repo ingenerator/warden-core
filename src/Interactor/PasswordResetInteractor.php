@@ -14,13 +14,8 @@ use Ingenerator\Warden\Core\Support\PasswordHasher;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use Ingenerator\Warden\Core\Validator\Validator;
 
-class PasswordResetInteractor
+class PasswordResetInteractor extends AbstractTokenValidatingInteractor
 {
-
-    /**
-     * @var EmailConfirmationTokenService
-     */
-    protected $email_token_service;
 
     /**
      * @var PasswordHasher
@@ -49,10 +44,10 @@ class PasswordResetInteractor
         UserRepository $users_repo,
         UserSession $user_session
     ) {
+        parent::__construct($email_token_service);
         $this->validator           = $validator;
         $this->users_repo          = $users_repo;
         $this->password_hasher     = $password_hasher;
-        $this->email_token_service = $email_token_service;
         $this->user_session        = $user_session;
     }
 
@@ -71,7 +66,7 @@ class PasswordResetInteractor
             return PasswordResetResponse::unknownUser($request->getEmail());
         }
 
-        if ( ! $this->isTokenValid($request->getToken(), $user)) {
+        if ( ! $this->isTokenValid(EmailVerificationRequest::forPasswordReset($user), $request)) {
             return PasswordResetResponse::invalidToken($request->getEmail());
         }
 
@@ -85,14 +80,4 @@ class PasswordResetInteractor
         return PasswordResetResponse::success($user->getEmail());
     }
 
-    protected function isTokenValid($token, User $user)
-    {
-        $params = [
-            'action'          => EmailVerificationRequest::RESET_PASSWORD,
-            'email'           => $user->getEmail(),
-            'current_pw_hash' => $user->getPasswordHash(),
-        ];
-
-        return $this->email_token_service->isValid($token, $params);
-    }
 }

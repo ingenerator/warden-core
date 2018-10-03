@@ -13,17 +13,12 @@ use Ingenerator\Warden\Core\Support\EmailConfirmationTokenService;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use Ingenerator\Warden\Core\Validator\Validator;
 
-class ActivateAccountInteractor
+class ActivateAccountInteractor extends AbstractTokenValidatingInteractor
 {
     /**
      * @var \Ingenerator\Warden\Core\Validator\Validator
      */
     protected $validator;
-
-    /**
-     * @var \Ingenerator\Warden\Core\Support\EmailConfirmationTokenService
-     */
-    protected $email_token_service;
 
     /**
      * @var \Ingenerator\Warden\Core\Repository\UserRepository
@@ -41,10 +36,10 @@ class ActivateAccountInteractor
         UserRepository $users_repo,
         UserSession $user_session
     ) {
-        $this->validator           = $validator;
-        $this->email_token_service = $email_token_service;
-        $this->users_repo          = $users_repo;
-        $this->user_session        = $user_session;
+        parent::__construct($email_token_service);
+        $this->validator    = $validator;
+        $this->users_repo   = $users_repo;
+        $this->user_session = $user_session;
     }
 
     /**
@@ -60,22 +55,12 @@ class ActivateAccountInteractor
 
         $user = $this->users_repo->load($request->getUserId());
 
-        if ( ! $this->isTokenValid($request, $user)) {
+        if ( ! $this->isTokenValid(EmailVerificationRequest::forActivation($user), $request)) {
             return ActivateAccountResponse::invalidToken();
         }
 
         $this->activateAndLoginUser($user);
         return ActivateAccountResponse::success();
-    }
-
-    protected function isTokenValid(ActivateAccountRequest $request, User $user)
-    {
-        $params = [
-            'action'  => EmailVerificationRequest::ACTIVATE_ACCOUNT,
-            'user_id' => $user->getId(),
-        ];
-
-        return $this->email_token_service->isValid($request->getToken(), $params);
     }
 
     /**
@@ -90,4 +75,5 @@ class ActivateAccountInteractor
             $this->user_session->login($user);
         }
     }
+
 }

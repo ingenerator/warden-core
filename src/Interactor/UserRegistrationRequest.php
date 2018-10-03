@@ -10,7 +10,9 @@ namespace Ingenerator\Warden\Core\Interactor;
 use Ingenerator\Warden\Core\Entity\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UserRegistrationRequest extends AbstractRequest
+/** @var Assert $annotations keep me to stop phpstorm deleting the import */
+
+class UserRegistrationRequest extends AbstractRequest implements TokenSignedRequest
 {
     /**
      * @Assert\NotBlank
@@ -42,7 +44,7 @@ class UserRegistrationRequest extends AbstractRequest
     /**
      * @return string
      */
-    public function getEmailConfirmationToken()
+    public function getToken()
     {
         return $this->email_confirmation_token;
     }

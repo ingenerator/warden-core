@@ -11,6 +11,7 @@ class InsecureJSONTokenServiceStub implements EmailConfirmationTokenService
 {
     public function createToken($params)
     {
+        ksort($params);
         return json_encode($params);
     }
 

@@ -121,7 +121,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
             '/complete-registration',
             [
                 'email' => 'foo@bar.com',
-                'token' => '{"email":"foo@bar.com","action":"register"}',
+                'token' => '{"action":"register","email":"foo@bar.com"}',
             ],
             $this->user_notification->getFirstNotification()
         );

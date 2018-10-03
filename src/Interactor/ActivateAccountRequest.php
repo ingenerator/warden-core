@@ -9,7 +9,8 @@ namespace Ingenerator\Warden\Core\Interactor;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @var Assert $annotations keep me to stop phpstorm deleting the import */
-class ActivateAccountRequest extends AbstractRequest
+
+class ActivateAccountRequest extends AbstractRequest implements TokenSignedRequest
 {
     /**
      * @Assert\NotBlank
