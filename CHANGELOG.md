@@ -1,5 +1,11 @@
 ### Unreleased
 
+* [Internal BREAKING] PasswordResetInteractor and UserRegistrationInteractor now provide endpoints to 
+  validate the token and token parameters without calling the main usecase - this allows for controllers
+  to show an error and handle invalid tokens immediately rather than after the user submits the form.
+  The validation response includes the user if one was matched but this SHOULD NOT be publicly exposed 
+  unless the token was valid. Otherwise it may be possible to craft a user enumeration attack by sending 
+  incremental user IDs with no token. 
 * [BREAKING] Password reset links now carry user_id, not email - as a result any links issued before 
   upgrading to this version will be invalid.
 * [Internal BREAKING] Refactor how signed tokens are passed to and validated within interactors, 

@@ -22,6 +22,7 @@ use Ingenerator\Warden\Core\Validator\Validator;
 use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
 use test\mock\Ingenerator\Warden\Core\Support\InsecureJSONTokenServiceStub;
 use test\mock\Ingenerator\Warden\Core\Support\ReversingPassswordHasherStub;
+use test\mock\Ingenerator\Warden\Core\Support\ValidInvalidTokenServiceStub;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
 
 class UserRegistrationInteractorTest extends AbstractInteractorTest
@@ -59,13 +60,126 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
 
     public function test_it_is_initialisable()
     {
-        $this->assertInstanceOf('Ingenerator\Warden\Core\Interactor\UserRegistrationInteractor', $this->newSubject());
+        $this->assertInstanceOf(
+            'Ingenerator\Warden\Core\Interactor\UserRegistrationInteractor',
+            $this->newSubject()
+        );
+    }
+
+    public function provider_validate_registration_token()
+    {
+        return [
+            [
+                TRUE,
+                [
+                    'email'                    => 'foo@bar.com',
+                    'email_confirmation_token' => NULL
+                ],
+                ['user' => NULL, 'user_email' => NULL, 'is_valid' => FALSE]
+            ],
+            [
+                FALSE,
+                [
+                    'email'                    => 'foo@bar.com',
+                    'email_confirmation_token' => NULL
+                ],
+                ['user' => NULL, 'user_email' => NULL, 'is_valid' => TRUE]
+            ],
+            [
+                TRUE,
+                [
+                    'email'                    => 'foo@bar.com',
+                    'email_confirmation_token' => 'invalid'
+                ],
+                ['user' => NULL, 'user_email' => NULL, 'is_valid' => FALSE]
+            ],
+            [
+                FALSE,
+                [
+                    'email'                    => 'foo@bar.com',
+                    'email_confirmation_token' => 'invalid'
+                ],
+                ['user' => NULL, 'user_email' => NULL, 'is_valid' => FALSE]
+            ],
+            [
+                TRUE,
+                [
+                    'email'                    => 'foo@bar.com',
+                    'email_confirmation_token' => [
+                        'email'  => 'someone-else@bar.com',
+                        'action' => EmailVerificationRequest::REGISTER
+                    ],
+                ],
+                ['user' => NULL, 'user_email' => NULL, 'is_valid' => FALSE]
+            ],
+            [
+                FALSE,
+                [
+                    'email'                    => 'foo@bar.com',
+                    'email_confirmation_token' => [
+                        'email'  => 'someone-else@bar.com',
+                        'action' => EmailVerificationRequest::REGISTER
+                    ],
+                ],
+                ['user' => NULL, 'user_email' => NULL, 'is_valid' => FALSE]
+            ],
+            [
+                TRUE,
+                [
+                    'email'                    => 'foo@bar.com',
+                    'email_confirmation_token' => [
+                        'email'  => 'foo@bar.com',
+                        'action' => EmailVerificationRequest::REGISTER
+                    ],
+                ],
+                ['user' => NULL, 'user_email' => NULL, 'is_valid' => TRUE]
+            ],
+            [
+                FALSE,
+                [
+                    'email'                    => 'foo@bar.com',
+                    'email_confirmation_token' => [
+                        'email'  => 'foo@bar.com',
+                        'action' => EmailVerificationRequest::REGISTER
+                    ],
+                ],
+                ['user' => NULL, 'user_email' => NULL, 'is_valid' => TRUE]
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provider_validate_registration_token
+     */
+    public function test_it_can_validate_registration_token($token_required, $request, $expect)
+    {
+        $this->email_token_service                               = new InsecureJSONTokenServiceStub;
+        $this->config['registration']['require_confirmed_email'] = $token_required;
+
+        if (is_array($request['email_confirmation_token'])) {
+            $request['email_confirmation_token'] = $this->email_token_service->createToken(
+                $request['email_confirmation_token']
+            );
+        }
+
+        $state = $this->newSubject()->validateToken(UserRegistrationRequest::fromArray($request));
+        $this->assertSame(
+            $expect,
+            [
+                'user'       => $state->getUser(),
+                'user_email' => $state->getUserEmail(),
+                'is_valid'   => $state->isValid()
+            ]
+        );
     }
 
     public function test_it_fails_if_details_are_not_valid()
     {
         $this->validator = ValidatorStub::neverValid();
-        $this->assertFailsWithCode(UserRegistrationResponse::ERROR_DETAILS_INVALID, $this->executeWith([]));
+        $this->assertFailsWithCode(
+            UserRegistrationResponse::ERROR_DETAILS_INVALID,
+            $this->executeWith([])
+        );
     }
 
     public function test_it_fails_if_invalid_email_confirmation_token_presented()
@@ -75,7 +189,7 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
             $this->executeWith(
                 [
                     'email'                    => 'some.tampered@email.net',
-                    'email_confirmation_token' => $this->givenValidToken('any.where@some.net'),
+                    'email_confirmation_token' => 'invalid',
                 ]
             )
         );
@@ -118,14 +232,20 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
             ]
         );
         $result  = $this->newSubject()->execute($request);
-        $this->assertSame('The custom request maps this as a public user property', $result->getUser()->extra_field);
+        $this->assertSame(
+            'The custom request maps this as a public user property',
+            $result->getUser()->extra_field
+        );
     }
 
-    public function test_it_creates_inactive_if_email_unconfirmed_when_configured_to_allow_inactive_users()
+    public function test_it_creates_inactive_if_email_unconfirmed_when_configured_to_allow_inactive_users(
+    )
     {
         $this->config['registration']['require_confirmed_email'] = FALSE;
 
-        $result = $this->executeWith(['email' => 'foo@bar.com', 'email_confirmation_token' => NULL]);
+        $result = $this->executeWith(
+            ['email' => 'foo@bar.com', 'email_confirmation_token' => NULL]
+        );
         $this->assertFalse($result->getUser()->isActive());
     }
 
@@ -133,7 +253,9 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
     {
         $this->config['registration']['require_confirmed_email'] = TRUE;
 
-        $result = $this->executeWith(['email' => 'foo@bar.com', 'email_confirmation_token' => NULL]);
+        $result = $this->executeWith(
+            ['email' => 'foo@bar.com', 'email_confirmation_token' => NULL]
+        );
         $this->assertFailsWithCode(UserRegistrationResponse::ERROR_EMAIL_UNCONFIRMED, $result);
     }
 
@@ -141,14 +263,13 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
      * @testWith [true]
      *           [false]
      */
-    public function test_it_creates_active_user_if_valid_email_confirmation_token_provided_whether_required_or_not($token_required)
-    {
+    public function test_it_creates_active_user_if_valid_email_confirmation_token_provided_whether_required_or_not(
+        $token_required
+    ) {
         $this->config['registration']['require_confirmed_email'] = $token_required;
+
         $result = $this->executeWith(
-            [
-                'email'                    => 'foo@bar.net',
-                'email_confirmation_token' => $this->givenValidToken('foo@bar.net'),
-            ]
+            ['email' => 'foo@bar.net', 'email_confirmation_token' => 'valid']
         );
         $this->assertTrue($result->getUser()->isActive());
     }
@@ -164,7 +285,7 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
         $result = $this->executeWith(
             [
                 'email'                    => 'foo@bar.net',
-                'email_confirmation_token' => $this->givenValidToken('foo@bar.net'),
+                'email_confirmation_token' => 'valid'
             ]
         );
         $this->assertSame($result->getUser(), $this->user_session->getUser());
@@ -180,12 +301,15 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
     {
         parent::setUp();
         $this->validator           = ValidatorStub::alwaysValid();
-        $this->email_token_service = new InsecureJSONTokenServiceStub;
+        $this->email_token_service = new ValidInvalidTokenServiceStub;
         $this->user_repo           = new ArrayUserRepository;
         $this->user_session        = new SimplePropertyUserSession;
         $this->password_hasher     = new ReversingPassswordHasherStub;
     }
 
+    /**
+     * @return \Ingenerator\Warden\Core\Interactor\UserRegistrationInteractor
+     */
     protected function newSubject()
     {
         return new UserRegistrationInteractor(
@@ -206,21 +330,6 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
     protected function executeWith(array $details)
     {
         return $this->newSubject()->execute(UserRegistrationRequest::fromArray($details));
-    }
-
-    /**
-     * @param $email
-     *
-     * @return mixed
-     */
-    protected function givenValidToken($email)
-    {
-        return $this->email_token_service->createToken(
-            [
-                'action' => EmailVerificationRequest::REGISTER,
-                'email'  => $email,
-            ]
-        );
     }
 
 }

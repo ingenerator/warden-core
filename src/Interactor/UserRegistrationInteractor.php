@@ -51,11 +51,11 @@ class UserRegistrationInteractor extends AbstractTokenValidatingInteractor
         UserSession $user_session
     ) {
         parent::__construct($email_token_service);
-        $this->validator           = $validator;
-        $this->users_repo          = $users_repo;
-        $this->password_hasher     = $password_hasher;
-        $this->configuration       = $configuration;
-        $this->user_session        = $user_session;
+        $this->validator       = $validator;
+        $this->users_repo      = $users_repo;
+        $this->password_hasher = $password_hasher;
+        $this->configuration   = $configuration;
+        $this->user_session    = $user_session;
     }
 
     /**
@@ -69,15 +69,13 @@ class UserRegistrationInteractor extends AbstractTokenValidatingInteractor
             return UserRegistrationResponse::validationFailed($errors);
         }
 
-        if ($request->hasToken()) {
-            if ( ! $this->isTokenValid(
-                EmailVerificationRequest::forRegistration($request->getEmail()),
-                $request
-            )) {
+        $token_state = $this->validateToken($request);
+        if ( ! $token_state->isValid()) {
+            if ($request->hasToken()) {
                 return UserRegistrationResponse::badEmailConfirmation();
+            } else {
+                return UserRegistrationResponse::emailConfirmationRequired();
             }
-        } elseif ($this->configuration->isEmailConfirmationRequiredToRegister()) {
-            return UserRegistrationResponse::emailConfirmationRequired();
         }
 
         try {
@@ -118,6 +116,31 @@ class UserRegistrationInteractor extends AbstractTokenValidatingInteractor
     protected function setInitialActiveState(User $user, UserRegistrationRequest $request)
     {
         $user->setActive((bool) $request->getToken());
+    }
+
+    /**
+     * Validate the token with the request.
+     *
+     * Note, if confirmation is not required then an empty token will be validated as OK
+     *
+     * @param \Ingenerator\Warden\Core\Interactor\UserRegistrationRequest $request
+     *
+     * @return \Ingenerator\Warden\Core\Interactor\TokenValidationResult
+     */
+    public function validateToken(UserRegistrationRequest $request)
+    {
+        if ($request->hasToken()) {
+            return TokenValidationResult::withNoUser(
+                $this->isTokenValid(
+                    EmailVerificationRequest::forRegistration($request->getEmail()),
+                    $request
+                )
+            );
+        } elseif ( ! $this->configuration->isEmailConfirmationRequiredToRegister()) {
+            return TokenValidationResult::withNoUser(TRUE);
+        } else {
+            return TokenValidationResult::withNoUser(FALSE);
+        }
     }
 
 }
