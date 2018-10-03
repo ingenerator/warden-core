@@ -1,5 +1,9 @@
 ### Unreleased
 
+* [Feature] Now explicitly returns instead of throwing if a login request causes an email verification,
+  and that verification fails because the email is invalid. This might happen because of temporary DNS
+  resolution errors at the server or the user's mail domain. Best handling of 
+  `LoginResponse::ERROR_EMAIL_VERIFICATION_FAILED` is likely to be to show a "temporary error" message.
 * [Feature] Can now trigger and complete email verification for inactive accounts, including that an
   activation is sent automatically on attempt to login to inactive account when the correct password 
   is used. Using the wrong password (or if the account has no password) will result in a password 

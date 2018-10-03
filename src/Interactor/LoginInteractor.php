@@ -95,6 +95,10 @@ class LoginInteractor
         $result  = $this->email_verification->execute($request);
         if ($result->isFailureCode(EmailVerificationResponse::ERROR_RATE_LIMITED)) {
             return LoginResponse::passwordIncorrectRateLimited($user, $result->canRetryAfter());
+
+        } elseif ($result->isFailureCode(EmailVerificationResponse::ERROR_DETAILS_INVALID)) {
+            return LoginResponse::emailFailed($user);
+
         } elseif ( ! $result->wasSuccessful()) {
             throw new \UnexpectedValueException(
                 'Password reset verification failed: '.$result->getFailureCode()
@@ -110,6 +114,10 @@ class LoginInteractor
         $result  = $this->email_verification->execute($request);
         if ($result->isFailureCode(EmailVerificationResponse::ERROR_RATE_LIMITED)) {
             return LoginResponse::notActiveRateLimited($user, $result->canRetryAfter());
+
+        } elseif ($result->isFailureCode(EmailVerificationResponse::ERROR_DETAILS_INVALID)) {
+            return LoginResponse::emailFailed($user);
+
         } elseif ( ! $result->wasSuccessful()) {
             throw new \UnexpectedValueException(
                 'Activation send failed: '.$result->getFailureCode()

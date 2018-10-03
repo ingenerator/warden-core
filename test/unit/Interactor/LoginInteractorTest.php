@@ -221,7 +221,8 @@ class LoginInteractorTest extends AbstractInteractorTest
         );
     }
 
-    public function provider_throttled_verifications() {
+    public function provider_throttled_verifications()
+    {
         return [
             [
                 ['email' => 'foo@bar.com', 'password_hash' => '12345678', 'is_active' => FALSE],
@@ -239,8 +240,11 @@ class LoginInteractorTest extends AbstractInteractorTest
     /**
      * @dataProvider provider_throttled_verifications
      */
-    public function test_it_identifies_if_email_verification_throttled_for_activation_or_reset($user_data, $request, $expect_code)
-    {
+    public function test_it_identifies_if_email_verification_throttled_for_activation_or_reset(
+        $user_data,
+        $request,
+        $expect_code
+    ) {
         $retry_after              = new \DateTimeImmutable();
         $this->email_verification = EmailVerificationInteractorSpy::willRespond(
             EmailVerificationResponse::rateLimited('foo@bar.com', $retry_after)
@@ -253,6 +257,42 @@ class LoginInteractorTest extends AbstractInteractorTest
         $this->assertSame($user, $response->getUser());
     }
 
+
+    public function provider_failed_email_verifications()
+    {
+        return [
+            [
+                ['email' => 'foo@bar.com', 'password_hash' => '12345678', 'is_active' => FALSE],
+                ['email' => 'foo@bar.com', 'password' => '87654321'],
+                LoginResponse::ERROR_NOT_ACTIVE_ACTIVATION_THROTTLED,
+            ],
+            [
+                ['email' => 'foo@bar.com', 'password_hash' => '12345678', 'is_active' => TRUE],
+                ['email' => 'foo@bar.com', 'password' => 'wrong'],
+                LoginResponse::ERROR_PASSWORD_INCORRECT_RESET_THROTTLED,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provider_failed_email_verifications
+     */
+    public function test_it_responds_if_email_verification_details_invalid_for_activation_or_reset(
+        $user_data,
+        $request
+    ) {
+        $this->email_verification = EmailVerificationInteractorSpy::willRespond(
+            EmailVerificationResponse::validationFailed(['email' => 'you made that up'])
+        );
+
+        $user = UserStub::fromArray($user_data);
+        $this->user_repo->save($user);
+        $response = $this->executeWith($request);
+        $this->assertFailsWithCode(LoginResponse::ERROR_EMAIL_VERIFICATION_FAILED, $response);
+        $this->assertSame($user, $response->getUser());
+    }
+
+
     public function setUp()
     {
         parent::setUp();
@@ -262,7 +302,6 @@ class LoginInteractorTest extends AbstractInteractorTest
         $this->user_repo          = new ArrayUserRepository;
         $this->user_session       = new SimplePropertyUserSession;
     }
-
 
     protected function assertFailsWithCode($code, AbstractResponse $result)
     {
