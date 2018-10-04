@@ -1,5 +1,7 @@
 ### Unreleased
 
+### v0.3.0 (2018-10-04)
+
 * [BREAKING] Login attempts are now rate limited by user-email and globally. You will need to provide 
   configuration for the `warden.login.global` and `warden.login.user` bucket types, and to handle
   the LoginResponse::ERROR_RATE_LIMITED errors.
