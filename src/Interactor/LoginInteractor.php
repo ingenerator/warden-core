@@ -8,6 +8,7 @@ namespace Ingenerator\Warden\Core\Interactor;
 
 
 use Ingenerator\Warden\Core\Entity\User;
+use Ingenerator\Warden\Core\RateLimit\LeakyBucket;
 use Ingenerator\Warden\Core\Repository\UserRepository;
 use Ingenerator\Warden\Core\Support\PasswordHasher;
 use Ingenerator\Warden\Core\UserSession\UserSession;
@@ -35,9 +36,14 @@ class LoginInteractor
      * @var EmailVerificationInteractor
      */
     protected $email_verification;
+    /**
+     * @var \Ingenerator\Warden\Core\RateLimit\LeakyBucket
+     */
+    protected $leaky_bucket;
 
     public function __construct(
         Validator $validator,
+        LeakyBucket $leaky_bucket,
         UserRepository $user_repo,
         PasswordHasher $hasher,
         UserSession $session,
@@ -48,6 +54,7 @@ class LoginInteractor
         $this->hasher             = $hasher;
         $this->session            = $session;
         $this->email_verification = $email_verification;
+        $this->leaky_bucket       = $leaky_bucket;
     }
 
 
@@ -59,11 +66,17 @@ class LoginInteractor
     public function execute(LoginRequest $request)
     {
         if ($this->session->isAuthenticated()) {
-            throw new \LogicException('Cannot handle a login request when a user is already logged in');
+            throw new \LogicException(
+                'Cannot handle a login request when a user is already logged in'
+            );
         }
 
         if ($errors = $this->validator->validate($request)) {
             return LoginResponse::validationFailed($errors);
+        }
+
+        if ($rate_response = $this->checkLoginRateLimits($request)) {
+            return $rate_response;
         }
 
         if ( ! $user = $this->user_repo->findByEmail($request->getEmail())) {
@@ -133,5 +146,41 @@ class LoginInteractor
             $user->setPasswordHash($this->hasher->hash($password));
             $this->user_repo->save($user);
         }
+    }
+
+    /**
+     * @param \Ingenerator\Warden\Core\Interactor\LoginRequest $request
+     *
+     * @return \Ingenerator\Warden\Core\Interactor\LoginResponse|null
+     */
+    protected function checkLoginRateLimits(LoginRequest $request)
+    {
+        $failed_limits = [];
+        $retry_times   = [];
+        foreach ($this->getRateLimitsToCheck($request) as $request_type => $requester_id) {
+            $status = $this->leaky_bucket->attemptRequest($request_type, $requester_id);
+            if ($status->isRateLimited()) {
+                $failed_limits[] = $request_type;
+                $retry_times[]   = $status->getNextAvailableTime();
+            }
+        }
+
+        if ( ! empty ($failed_limits)) {
+            return LoginResponse::rateLimited(
+                $request->getEmail(),
+                max($retry_times),
+                $failed_limits
+            );
+        } else {
+            return NULL;
+        }
+    }
+
+    protected function getRateLimitsToCheck(LoginRequest $request)
+    {
+        return [
+            'warden.login.user'   => $request->getEmail(),
+            'warden.login.global' => 'all'
+        ];
     }
 }
