@@ -20,7 +20,7 @@ abstract class AbstractRequest
         foreach ($data as $field => $value) {
             // Sanitise all email addresses coming in to ensure that there are no mixed-case issues for users
             if ($field === 'email') {
-                $value = trim(strtolower($value));
+                $value = \trim(\strtolower($value));
             }
             $instance->$field = $value;
         }

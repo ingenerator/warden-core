@@ -33,6 +33,6 @@ class InteractorRequestFactory
         // @todo: this factorying feels icky and breaks typehinting and completion, isn't there a better way?
         $class = $this->config->getClassName('interactor_request', $type);
 
-        return call_user_func("$class::$factory_method", $argument);
+        return \call_user_func("$class::$factory_method", $argument);
     }
 }

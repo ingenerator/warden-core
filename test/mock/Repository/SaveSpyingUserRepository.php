@@ -34,12 +34,12 @@ class SaveSpyingUserRepository extends ArrayUserRepository
 
     public function assertNothingSaved()
     {
-        \PHPUnit_Framework_Assert::assertEmpty($this->users_saved);
+        \PHPUnit\Framework\Assert::assertEmpty($this->users_saved);
     }
 
     public function assertOneSaved(User $user)
     {
-        \PHPUnit_Framework_Assert::assertEquals([$user], $this->users_saved);
+        \PHPUnit\Framework\Assert::assertEquals([$user], $this->users_saved);
     }
 
 }

@@ -437,7 +437,7 @@ class LoginInteractorTest extends AbstractInteractorTest
     /**
      * @param string $className
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit\Framework\MockObject_MockObject
      */
     protected function getMockExpectingNoCalls($className)
     {
@@ -479,7 +479,7 @@ class EmailVerificationInteractorSpy extends EmailVerificationInteractor
 
     public function assertExecutedOnceWith(EmailVerificationRequest $request)
     {
-        \PHPUnit_Framework_Assert::assertCount(1, $this->calls);
-        \PHPUnit_Framework_Assert::assertEquals($request, $this->calls[0]);
+        \PHPUnit\Framework\Assert::assertCount(1, $this->calls);
+        \PHPUnit\Framework\Assert::assertEquals($request, $this->calls[0]);
     }
 }

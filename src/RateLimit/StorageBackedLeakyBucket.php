@@ -108,13 +108,13 @@ class StorageBackedLeakyBucket implements LeakyBucket
      */
     protected function lockBucket($bucket_id)
     {
-        $timeout_at = microtime(TRUE) + ($this->lock_config['timeout_ms'] / 1000);
+        $timeout_at = \microtime(TRUE) + ($this->lock_config['timeout_ms'] / 1000);
         do {
             if ($this->storage->createLock($bucket_id, $this->lock_config['lock_ttl_secs'])) {
                 return;
             }
-            usleep($this->lock_config['retry_wait_ms'] * 1000);
-        } while (microtime(TRUE) < $timeout_at);
+            \usleep($this->lock_config['retry_wait_ms'] * 1000);
+        } while (\microtime(TRUE) < $timeout_at);
 
         throw new LockWaitTimeoutException($bucket_id, $this->lock_config['timeout_ms']);
     }
@@ -128,7 +128,7 @@ class StorageBackedLeakyBucket implements LeakyBucket
      */
     protected function doBucketCalculations($bucket_id, $config)
     {
-        $time_now = microtime(TRUE);
+        $time_now = \microtime(TRUE);
         $bucket   = $this->storage->fetchBucket($bucket_id, ['t' => $time_now, 'd' => 0]);
 
         // Calculate leakage since the last attempt - this may be fractional
@@ -144,7 +144,7 @@ class StorageBackedLeakyBucket implements LeakyBucket
         $current_drops++;
 
         // Is there at least one full drop of space in the bucket?
-        if (ceil($current_drops) > $config['bucket_size']) {
+        if (\ceil($current_drops) > $config['bucket_size']) {
             $result = LeakyBucketStatus::rateLimited(
                 $this->calculateNextDropAvailableAt($current_drops, $config['leak_time_seconds'])
             );
@@ -175,10 +175,10 @@ class StorageBackedLeakyBucket implements LeakyBucket
      */
     protected function calculateNextDropAvailableAt($current_drops, $leak_time_seconds)
     {
-        $leakage_required = $current_drops - floor($current_drops);
+        $leakage_required = $current_drops - \floor($current_drops);
         $time_to_leak     = $leakage_required * $leak_time_seconds;
         $now              = new \DateTimeImmutable;
 
-        return $now->add(new \DateInterval('PT'.ceil($time_to_leak).'S'));
+        return $now->add(new \DateInterval('PT'.\ceil($time_to_leak).'S'));
     }
 }

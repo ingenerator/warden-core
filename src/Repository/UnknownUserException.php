@@ -12,7 +12,7 @@ class UnknownUserException extends \RuntimeException
 
     public static function forId($id)
     {
-        $e = new static(sprintf('There is no user account with id %s', $id));
+        $e = new static(\sprintf('There is no user account with id %s', $id));
 
         return $e;
     }

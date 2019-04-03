@@ -244,7 +244,7 @@ class ChangeEmailInteractorTest extends AbstractInteractorTest
     protected function givenValidToken(array $params)
     {
 
-        $params = array_merge(
+        $params = \array_merge(
             [
                 'email'         => 'new@bar.com',
                 'action'        => EmailVerificationRequest::CHANGE_EMAIL,

@@ -97,9 +97,9 @@ class StorageBackedLeakyBucketTest extends TestCase
         $this->config['bucket_types']['any'] = ['bucket_size' => 3, 'leak_time_seconds' => 0.1];
 
         $results = $this->checkIfLimitedTimes(4, 'any', 'anyone');
-        usleep(100050);
+        \usleep(100050);
         $results = $this->checkIfLimitedTimes(2, 'any', 'anyone', $results);
-        usleep(200050);
+        \usleep(200050);
         $results = $this->checkIfLimitedTimes(3, 'any', 'anyone', $results);
 
         $this->assertSame(
@@ -125,7 +125,7 @@ class StorageBackedLeakyBucketTest extends TestCase
     {
         $this->config['bucket_types']['any'] = ['bucket_size' => 2, 'leak_time_seconds' => 0.05];
         $results                             = $this->checkIfLimitedTimes(3, 'any', 'anything');
-        usleep(4 * 0.05 * 1000 * 1000);
+        \usleep(4 * 0.05 * 1000 * 1000);
         $results = $this->checkIfLimitedTimes(3, 'any', 'anything', $results);
         $this->assertSame(
             [
@@ -234,7 +234,7 @@ class BucketStorageStub implements LeakyBucketStorage
      */
     public function createLock($key, $ttl)
     {
-        if (is_int($this->allow_lock)) {
+        if (\is_int($this->allow_lock)) {
             $this->allow_lock--;
             $allow = ($this->allow_lock <= 0);
         } else {

@@ -24,7 +24,7 @@ class DuplicateUserException extends \RuntimeException
 
     public static function forEmail($email)
     {
-        $e        = new static(sprintf('A user account with email "%s" already exists', $email));
+        $e        = new static(\sprintf('A user account with email "%s" already exists', $email));
         $e->email = $email;
 
         return $e;

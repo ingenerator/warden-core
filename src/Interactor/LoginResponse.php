@@ -103,7 +103,7 @@ class LoginResponse extends AbstractResponse
         $response                  = new static(FALSE, self::ERROR_RATE_LIMITED);
         $response->can_retry_after = $retry_after;
         $response->email           = $email;
-        $response->failure_detail  = implode(',', $full_buckets);
+        $response->failure_detail  = \implode(',', $full_buckets);
 
         return $response;
     }

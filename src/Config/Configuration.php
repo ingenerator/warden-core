@@ -41,7 +41,7 @@ class Configuration
     protected function mergeHashValues(array $default, array $new)
     {
         foreach ($new as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $default[$key] = $this->mergeHashValues($default[$key], $value);
             } else {
                 $default[$key] = $value;
@@ -64,7 +64,7 @@ class Configuration
         }
 
         $fqcn = $this->config['classmap'][$group][$class_alias];
-        if ( ! class_exists($fqcn)) {
+        if ( ! \class_exists($fqcn)) {
             throw new \InvalidArgumentException(
                 "Class $fqcn mapped for $group.$class_alias is not defined"
             );

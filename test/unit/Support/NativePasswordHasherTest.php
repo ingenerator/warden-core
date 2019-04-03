@@ -9,7 +9,7 @@ namespace test\unit\Ingenerator\Warden\Core\Support;
 
 use Ingenerator\Warden\Core\Support\NativePasswordHasher;
 
-class NativePasswordHasherTest extends \PHPUnit_Framework_TestCase
+class NativePasswordHasherTest extends \PHPUnit\Framework\TestCase
 {
     protected $config = [
         'algorithm' => PASSWORD_DEFAULT,
@@ -36,7 +36,7 @@ class NativePasswordHasherTest extends \PHPUnit_Framework_TestCase
         $this->config['options']['cost'] = 8;
 
         $subject = $this->newSubject();
-        $info    = password_get_info($subject->hash('12345678'));
+        $info    = \password_get_info($subject->hash('12345678'));
         $this->assertEquals(['algo' => PASSWORD_BCRYPT, 'algoName' => 'bcrypt', 'options' => ['cost' => 8]], $info);
     }
 

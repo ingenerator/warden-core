@@ -31,17 +31,17 @@ class NativePasswordHasher implements PasswordHasher
 
     public function hash($password)
     {
-        return password_hash($password, $this->algorithm, $this->options);
+        return \password_hash($password, $this->algorithm, $this->options);
     }
 
     public function isCorrect($password, $hash)
     {
-        return password_verify($password, $hash);
+        return \password_verify($password, $hash);
     }
 
     public function needsRehash($hash)
     {
-        return password_needs_rehash($hash, $this->algorithm, $this->options);
+        return \password_needs_rehash($hash, $this->algorithm, $this->options);
     }
 
 }

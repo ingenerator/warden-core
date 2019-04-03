@@ -1,5 +1,10 @@
 ### Unreleased
 
+### v1.0.0 (2019-04-03)
+
+* Ensure php7.2 support
+* Drop php5 support
+
 ### v0.3.0 (2018-10-04)
 
 * [BREAKING] Login attempts are now rate limited by user-email and globally. You will need to provide 

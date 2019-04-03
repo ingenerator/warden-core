@@ -141,23 +141,23 @@ class EmailVerificationRequestTest extends TestCase
     {
         switch ($type) {
             case EmailVerificationRequest::ACTIVATE_ACCOUNT:
-                $args = array_merge($args, [UserStub::withEmail('anyone@td.com')]);
+                $args = \array_merge($args, [UserStub::withEmail('anyone@td.com')]);
                 return EmailVerificationRequest::forActivation($args[0]);
 
             case EmailVerificationRequest::CHANGE_EMAIL:
-                $args = array_merge($args, [UserStub::withEmail('anyone@td.com'), 'new@td.com']);
+                $args = \array_merge($args, [UserStub::withEmail('anyone@td.com'), 'new@td.com']);
                 return EmailVerificationRequest::forChangeEmail($args[0], $args[1]);
 
             case EmailVerificationRequest::NEW_USER_INVITE:
-                $args = array_merge($args, [UserStub::withEmail('anyone@td.com')]);
+                $args = \array_merge($args, [UserStub::withEmail('anyone@td.com')]);
                 return EmailVerificationRequest::forNewUserInvite($args[0]);
 
             case EmailVerificationRequest::REGISTER:
-                $args = array_merge($args, ['anyone@td.com']);
+                $args = \array_merge($args, ['anyone@td.com']);
                 return EmailVerificationRequest::forRegistration($args[0]);
 
             case EmailVerificationRequest::RESET_PASSWORD:
-                $args = array_merge($args, [UserStub::withEmail('anyone@td.com')]);
+                $args = \array_merge($args, [UserStub::withEmail('anyone@td.com')]);
                 return EmailVerificationRequest::forPasswordReset($args[0]);
 
             default:
