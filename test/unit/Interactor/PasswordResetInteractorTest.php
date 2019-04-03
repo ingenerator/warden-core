@@ -122,7 +122,7 @@ class PasswordResetInteractorTest extends AbstractInteractorTest
         foreach ($users as $user) {
             $this->user_repo->save($user);
         }
-        if (is_array($request['token'])) {
+        if (\is_array($request['token'])) {
             $request['token'] = $this->email_token_service->createToken($request['token']);
         }
         $state = $this->newSubject()->validateToken(PasswordResetRequest::fromArray($request));

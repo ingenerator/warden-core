@@ -65,7 +65,7 @@ class AbstractResponse
     public function getValidationErrors()
     {
         if ( ! $this->isFailureCode(static::ERROR_DETAILS_INVALID)) {
-            throw new \BadMethodCallException('Cannot access validation errors of valid '.get_class($this));
+            throw new \BadMethodCallException('Cannot access validation errors of valid '.\get_class($this));
         }
         return $this->validation_errors;
     }

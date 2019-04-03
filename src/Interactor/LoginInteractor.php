@@ -168,7 +168,7 @@ class LoginInteractor
         if ( ! empty ($failed_limits)) {
             return LoginResponse::rateLimited(
                 $request->getEmail(),
-                max($retry_times),
+                \max($retry_times),
                 $failed_limits
             );
         } else {

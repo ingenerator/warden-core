@@ -221,7 +221,7 @@ class EmailVerificationRequest extends AbstractRequest
     {
         if ( ! $this->user) {
             throw new \UnexpectedValueException(
-                'No User assigned to '.get_class($this).':'.$this->getAction()
+                'No User assigned to '.\get_class($this).':'.$this->getAction()
             );
         }
 

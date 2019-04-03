@@ -36,7 +36,7 @@ class NativePasswordHasherTest extends \PHPUnit\Framework\TestCase
         $this->config['options']['cost'] = 8;
 
         $subject = $this->newSubject();
-        $info    = password_get_info($subject->hash('12345678'));
+        $info    = \password_get_info($subject->hash('12345678'));
         $this->assertEquals(['algo' => PASSWORD_BCRYPT, 'algoName' => 'bcrypt', 'options' => ['cost' => 8]], $info);
     }
 

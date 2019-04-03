@@ -156,7 +156,7 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
         $this->email_token_service                               = new InsecureJSONTokenServiceStub;
         $this->config['registration']['require_confirmed_email'] = $token_required;
 
-        if (is_array($request['email_confirmation_token'])) {
+        if (\is_array($request['email_confirmation_token'])) {
             $request['email_confirmation_token'] = $this->email_token_service->createToken(
                 $request['email_confirmation_token']
             );

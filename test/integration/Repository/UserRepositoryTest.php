@@ -60,7 +60,7 @@ abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
      */
     public function test_throws_duplicate_user_if_attempting_to_create_user_with_already_registered_email()
     {
-        $email = uniqid('duplicate').'@bar.ban';
+        $email = \uniqid('duplicate').'@bar.ban';
         $this->newSubject()->save($this->newUser(['email' => $email]));
         $this->newSubject()->save($this->newUser(['email' => $email]));
     }
@@ -80,7 +80,7 @@ abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
 
     public function test_can_update_existing_user_with_same_email()
     {
-        $email = uniqid('not-duplicate').'@bar.ban';
+        $email = \uniqid('not-duplicate').'@bar.ban';
         $user  = $this->newUser(['email' => $email]);
         $this->given_saved_users($user);
         $user->setPasswordHash('stuff');
@@ -105,13 +105,13 @@ abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
 
     public function test_it_returns_null_when_finding_user_with_unknown_email()
     {
-        $this->given_saved_users($this->newUser(['email' => uniqid('dummy-user').'@foo.net']));
-        $this->assertNull($this->newSubject()->findByEmail(uniqid().'@unknown.com'));
+        $this->given_saved_users($this->newUser(['email' => \uniqid('dummy-user').'@foo.net']));
+        $this->assertNull($this->newSubject()->findByEmail(\uniqid().'@unknown.com'));
     }
 
     public function test_it_can_find_saved_user_by_email()
     {
-        $email      = uniqid('saved-user').'@bax.con';
+        $email      = \uniqid('saved-user').'@bax.con';
         $saved_user = $this->newUser(['email' => $email]);
         $this->given_saved_users($this->newUser(), $saved_user);
         $loaded_user = $this->newSubject()->findByEmail($email);
@@ -120,10 +120,10 @@ abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
 
     protected function newUser(array $values = [])
     {
-        $data = array_merge(
+        $data = \array_merge(
             [
-                'email'         => uniqid().'@bar.net',
-                'password_hash' => uniqid(),
+                'email'         => \uniqid().'@bar.net',
+                'password_hash' => \uniqid(),
                 'id'            => NULL,
             ],
             $values
@@ -158,7 +158,7 @@ abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
     protected function given_saved_users($other_user)
     {
         $repo = $this->newSubject();
-        foreach (func_get_args() as $user) {
+        foreach (\func_get_args() as $user) {
             $repo->save($user);
         }
     }

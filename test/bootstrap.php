@@ -1,6 +1,6 @@
 <?php
 # Bootstrap for running unit tests
-error_reporting(E_ALL | E_STRICT);
+\error_reporting(E_ALL | E_STRICT);
 
 // Autoload mocks and test-support helpers that should not autoload in the main app
 $mock_loader = new \Composer\Autoload\ClassLoader;

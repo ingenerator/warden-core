@@ -252,13 +252,13 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
     ) {
         if ( ! $notification instanceof ConfirmationRequiredNotification) {
             throw new \InvalidArgumentException(
-                'Expected ConfirmationRequiredNotification, got '.get_class($notification)
+                'Expected ConfirmationRequiredNotification, got '.\get_class($notification)
             );
         }
-        $url = strtok($notification->getContinuationUrl(), '?');
+        $url = \strtok($notification->getContinuationUrl(), '?');
         $this->assertEquals($expect_url, $url);
-        $query = parse_url($notification->getContinuationUrl(), PHP_URL_QUERY);
-        parse_str($query, $query_parts);
+        $query = \parse_url($notification->getContinuationUrl(), PHP_URL_QUERY);
+        \parse_str($query, $query_parts);
         $this->assertEquals(
             $expect_query,
             $query_parts

@@ -180,7 +180,7 @@ class ActivateAccountInteractorTest extends AbstractInteractorTest
     protected function givenValidToken(array $params)
     {
 
-        $params = array_merge(
+        $params = \array_merge(
             [
                 'action'        => EmailVerificationRequest::ACTIVATE_ACCOUNT,
                 'user_id'       => 1,
