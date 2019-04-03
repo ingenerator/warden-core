@@ -9,7 +9,7 @@ namespace test\unit\Ingenerator\Warden\Core\Support;
 
 use Ingenerator\Warden\Core\Support\NativePasswordHasher;
 
-class NativePasswordHasherTest extends \PHPUnit_Framework_TestCase
+class NativePasswordHasherTest extends \PHPUnit\Framework\TestCase
 {
     protected $config = [
         'algorithm' => PASSWORD_DEFAULT,

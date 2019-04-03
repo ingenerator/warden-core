@@ -10,7 +10,7 @@ use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
 
-abstract class UserSessionTest extends \PHPUnit_Framework_TestCase
+abstract class UserSessionTest extends \PHPUnit\Framework\TestCase
 {
 
     public function test_it_is_initialisable()

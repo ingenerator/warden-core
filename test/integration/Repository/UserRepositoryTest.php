@@ -12,7 +12,7 @@ use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\Entity\User;
 use Ingenerator\Warden\Core\Repository\UserRepository;
 
-abstract class UserRepositoryTest extends \PHPUnit_Framework_TestCase
+abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Configuration

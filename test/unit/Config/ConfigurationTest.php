@@ -10,7 +10,7 @@ namespace test\unit\Ingenerator\Warden\Core\Config;
 use Ingenerator\Warden\Core\Config\Configuration;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 
-class ConfigurationTest extends \PHPUnit_Framework_TestCase
+class ConfigurationTest extends \PHPUnit\Framework\TestCase
 {
     public function test_it_is_initialisable()
     {

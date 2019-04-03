@@ -11,7 +11,7 @@ use Ingenerator\Warden\Core\Config\Configuration;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Support\InteractorRequestFactory;
 
-class InteractorRequestFactoryTest extends \PHPUnit_Framework_TestCase
+class InteractorRequestFactoryTest extends \PHPUnit\Framework\TestCase
 {
 
     protected $config;
