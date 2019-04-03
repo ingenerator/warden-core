@@ -13,14 +13,19 @@
     {
       "name": "Andrew Coulton",
       "email": "andrew@ingenerator.com",
-      "homepage": "http://ingenerator.com"
+      "homepage": "https://ingenerator.com"
+    },
+    {
+      "name": "Craig Gosman",
+      "email": "craig@ingenerator.com",
+      "homepage": "https://ingenerator.com"
     }
   ],
   "require": {
-    "php": "^5.5||^7.0"
+    "php": "^7.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^4.8"
+    "phpunit/phpunit": "^7.0"
   },
   "suggest": {
     "ingenerator/warden-validator-symfony": "Default entity / request validation implemenation using symfony validation"
