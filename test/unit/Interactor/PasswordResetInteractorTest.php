@@ -220,7 +220,7 @@ class PasswordResetInteractorTest extends AbstractInteractorTest
         $this->assertSame($user, $this->user_session->getUser());
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->validator           = ValidatorStub::alwaysValid();

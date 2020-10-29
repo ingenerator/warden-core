@@ -8,8 +8,9 @@ namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
 use Ingenerator\Warden\Core\Interactor\AbstractResponse;
+use PHPUnit\Framework\TestCase;
 
-abstract class AbstractInteractorTest extends \PHPUnit\Framework\TestCase
+abstract class AbstractInteractorTest extends TestCase
 {
     
     protected function assertFailsWithCode($code, AbstractResponse $result)

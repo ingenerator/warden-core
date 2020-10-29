@@ -22,10 +22,10 @@
     }
   ],
   "require": {
-    "php": "^7.2"
+    "php": "~7.4.11"
   },
   "require-dev": {
-    "phpunit/phpunit": "^7.0"
+    "phpunit/phpunit": "^9.0"
   },
   "suggest": {
     "ingenerator/warden-validator-symfony": "Default entity / request validation implemenation using symfony validation"

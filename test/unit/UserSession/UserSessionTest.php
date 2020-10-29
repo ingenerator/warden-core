@@ -6,6 +6,7 @@
 
 namespace test\unit\Ingenerator\Warden\Core\UserSession;
 
+use BadMethodCallException;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
@@ -23,11 +24,9 @@ abstract class UserSessionTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($this->newSubject()->isAuthenticated());
     }
 
-    /**
-     * @expectedException \BadMethodCallException
-     */
     public function test_it_throws_when_attempting_to_access_user_if_not_authenticated()
     {
+        $this->expectException(BadMethodCallException::class);
         $this->newSubject()->getUser();
     }
 

@@ -1,5 +1,9 @@
 ### Unreleased
 
+### v1.1.0 (2020-10-29)
+
+* Support php7.4
+
 ### v1.0.0 (2019-04-03)
 
 * Ensure php7.2 support

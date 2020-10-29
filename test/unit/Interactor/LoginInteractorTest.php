@@ -24,6 +24,9 @@ use Ingenerator\Warden\Core\Support\PasswordHasher;
 use Ingenerator\Warden\Core\UserSession\SimplePropertyUserSession;
 use Ingenerator\Warden\Core\UserSession\UserSession;
 use Ingenerator\Warden\Core\Validator\Validator;
+use LogicException;
+use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\MockObject\MockObject;
 use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
 use test\mock\Ingenerator\Warden\Core\RateLimit\LeakyBucketStub;
 use test\mock\Ingenerator\Warden\Core\Repository\SaveSpyingUserRepository;
@@ -64,18 +67,13 @@ class LoginInteractorTest extends AbstractInteractorTest
 
     public function test_it_is_initialisable()
     {
-        $this->assertInstanceOf(
-            '\Ingenerator\Warden\Core\Interactor\LoginInteractor',
-            $this->newSubject()
-        );
+        $this->assertInstanceOf(LoginInteractor::class, $this->newSubject());
     }
 
-    /**
-     * @expectedException \LogicException
-     */
     public function test_it_throws_if_user_already_logged_in()
     {
         $this->user_session->login(new SimpleUser);
+        $this->expectException(LogicException::class);
         $this->newSubject()->execute(LoginRequest::fromArray([]));
     }
 
@@ -275,7 +273,7 @@ class LoginInteractorTest extends AbstractInteractorTest
         $this->user_repo->assertNothingSaved();
     }
 
-    public function test_it_does_not_send_any_user_notification_on_succesful_login()
+    public function test_it_does_not_send_any_user_notification_on_successful_login()
     {
         $this->email_verification = $this->getMockExpectingNoCalls(
             EmailVerificationInteractor::class
@@ -388,7 +386,7 @@ class LoginInteractorTest extends AbstractInteractorTest
     }
 
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->email_verification = new EmailVerificationInteractorSpy;
@@ -437,7 +435,7 @@ class LoginInteractorTest extends AbstractInteractorTest
     /**
      * @param string $className
      *
-     * @return \PHPUnit\Framework\MockObject_MockObject
+     * @return MockObject
      */
     protected function getMockExpectingNoCalls($className)
     {
@@ -479,7 +477,7 @@ class EmailVerificationInteractorSpy extends EmailVerificationInteractor
 
     public function assertExecutedOnceWith(EmailVerificationRequest $request)
     {
-        \PHPUnit\Framework\Assert::assertCount(1, $this->calls);
-        \PHPUnit\Framework\Assert::assertEquals($request, $this->calls[0]);
+        Assert::assertCount(1, $this->calls);
+        Assert::assertEquals($request, $this->calls[0]);
     }
 }

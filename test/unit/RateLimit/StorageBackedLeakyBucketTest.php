@@ -8,7 +8,9 @@ namespace test\unit\Ingenerator\Warden\Core\RateLimit;
 
 
 use Ingenerator\Warden\Core\RateLimit\LeakyBucketStorage;
+use Ingenerator\Warden\Core\RateLimit\LockWaitTimeoutException;
 use Ingenerator\Warden\Core\RateLimit\StorageBackedLeakyBucket;
+use Ingenerator\Warden\Core\RateLimit\UndefinedRequestTypeException;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 
@@ -39,9 +41,6 @@ class StorageBackedLeakyBucketTest extends TestCase
         $this->assertInstanceOf(StorageBackedLeakyBucket::class, $this->newSubject());
     }
 
-    /**
-     * @expectedException \Ingenerator\Warden\Core\RateLimit\UndefinedRequestTypeException
-     */
     public function test_it_throws_if_no_config_for_request_type()
     {
         $this->config['bucket_types'] = [
@@ -50,12 +49,10 @@ class StorageBackedLeakyBucketTest extends TestCase
                 'leak_time_seconds' => 100
             ]
         ];
+        $this->expectException(UndefinedRequestTypeException::class);
         $this->newSubject()->attemptRequest('foo.bar', 'anyone');
     }
 
-    /**
-     * @expectedException \Ingenerator\Warden\Core\RateLimit\LockWaitTimeoutException
-     */
     public function test_it_throws_if_unable_to_obtain_lock_after_timeout()
     {
         $this->config['bucket_lock'] = [
@@ -64,6 +61,7 @@ class StorageBackedLeakyBucketTest extends TestCase
             'lock_ttl_secs' => 5,
         ];
         $this->storage               = BucketStorageStub::neverGrantLock();
+        $this->expectException(LockWaitTimeoutException::class);
         $this->newSubject()->attemptRequest('warden.email.reset', 'anybody');
     }
 
@@ -149,11 +147,11 @@ class StorageBackedLeakyBucketTest extends TestCase
         $this->newSubject()->attemptRequest('any', 'anything');
         $result = $this->newSubject()->attemptRequest('any', 'anything');
         $this->assertTrue($result->isRateLimited());
-        $this->assertEquals(
+        $this->assertEqualsWithDelta(
             new \DateTimeImmutable('+30 seconds'),
             $result->getNextAvailableTime(),
-            'Should be basically right time',
-            1
+            1,
+            'Should be basically right time'
         );
     }
 
@@ -172,7 +170,7 @@ class StorageBackedLeakyBucketTest extends TestCase
         );
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->storage = new BucketStorageStub;

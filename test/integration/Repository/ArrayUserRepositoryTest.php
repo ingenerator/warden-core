@@ -16,7 +16,7 @@ class ArrayUserRepositoryTest extends UserRepositoryTest
      */
     protected $storage;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->storage = new \ArrayObject;

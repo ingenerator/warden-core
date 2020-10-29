@@ -53,12 +53,10 @@ class ConfirmationRequiredNotificationTest extends TestCase
         $this->assertSame(FALSE, $this->newSubject()->hasRecipientUser());
     }
 
-    /**
-     * @expectedException \LogicException
-     */
     public function test_it_throws_if_attempt_to_get_unset_user()
     {
         $this->recipient_user = NULL;
+        $this->expectException(\LogicException::class);
         $this->newSubject()->getRecipientUser();
     }
 
