@@ -203,7 +203,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTest
         $this->user_notification->assertNothingSent();
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->email_token_service = new InsecureJSONTokenServiceStub;

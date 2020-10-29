@@ -12,6 +12,7 @@ use Ingenerator\Warden\Core\Interactor\ChangeEmailRequest;
 use Ingenerator\Warden\Core\Interactor\ChangeEmailResponse;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Repository\ArrayUserRepository;
+use Ingenerator\Warden\Core\Repository\UnknownUserException;
 use Ingenerator\Warden\Core\Repository\UserRepository;
 use Ingenerator\Warden\Core\Support\EmailConfirmationTokenService;
 use Ingenerator\Warden\Core\UserSession\SimplePropertyUserSession;
@@ -60,11 +61,9 @@ class ChangeEmailInteractorTest extends AbstractInteractorTest
 
     }
 
-    /**
-     * @expectedException \Ingenerator\Warden\Core\Repository\UnknownUserException
-     */
     public function test_it_throws_if_user_does_not_exist()
     {
+        $this->expectException(UnknownUserException::class);
         $result = $this->executeWith(['user_id' => 999]);
         $this->assertFailsWithCode(ChangeEmailResponse::ERROR_UNKNOWN_USER, $result);
         $this->assertSame('unknown@foo.bar', $result->getNewEmail());
@@ -207,7 +206,7 @@ class ChangeEmailInteractorTest extends AbstractInteractorTest
         $this->assertSame($user, $this->user_session->getUser());
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->validator           = ValidatorStub::alwaysValid();

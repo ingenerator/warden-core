@@ -101,7 +101,7 @@ class ChangePasswordInteractorTest extends AbstractInteractorTest
         $this->user_repo->assertOneSaved($user);
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->validator       = ValidatorStub::alwaysValid();

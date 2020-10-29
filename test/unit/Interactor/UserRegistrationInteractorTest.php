@@ -297,7 +297,7 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
         $this->assertFalse($this->user_session->isAuthenticated());
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->validator           = ValidatorStub::alwaysValid();

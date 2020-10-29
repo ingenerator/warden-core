@@ -10,9 +10,12 @@ namespace test\integration\Ingenerator\Warden\Core\Repository;
 use Ingenerator\Warden\Core\Config\Configuration;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\Entity\User;
+use Ingenerator\Warden\Core\Repository\DuplicateUserException;
+use Ingenerator\Warden\Core\Repository\UnknownUserException;
 use Ingenerator\Warden\Core\Repository\UserRepository;
+use PHPUnit\Framework\TestCase;
 
-abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
+abstract class UserRepositoryTest extends TestCase
 {
     /**
      * @var Configuration
@@ -55,19 +58,14 @@ abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($original_id, $user->getId(), 'Existing ID should be retained on save');
     }
 
-    /**
-     * @expectedException \Ingenerator\Warden\Core\Repository\DuplicateUserException
-     */
     public function test_throws_duplicate_user_if_attempting_to_create_user_with_already_registered_email()
     {
         $email = \uniqid('duplicate').'@bar.ban';
         $this->newSubject()->save($this->newUser(['email' => $email]));
+        $this->expectException(DuplicateUserException::class);
         $this->newSubject()->save($this->newUser(['email' => $email]));
     }
 
-    /**
-     * @expectedException \Ingenerator\Warden\Core\Repository\DuplicateUserException
-     */
     public function test_throws_duplicate_user_if_attempting_to_update_user_to_other_users_email()
     {
         $other_user = $this->newUser();
@@ -75,6 +73,7 @@ abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->given_saved_users($other_user, $this_user);
 
         $this_user->setEmail($other_user->getEmail());
+        $this->expectException(DuplicateUserException::class);
         $this->newSubject()->save($this_user);
     }
 
@@ -85,13 +84,14 @@ abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->given_saved_users($user);
         $user->setPasswordHash('stuff');
         $this->newSubject()->save($user);
+
+        // if we got this far successfully assert something to satisfy PHPUnit
+        $this->assertTrue(TRUE);
     }
 
-    /**
-     * @expectedException \Ingenerator\Warden\Core\Repository\UnknownUserException
-     */
     public function test_it_throws_if_loading_user_with_unknown_id()
     {
+        $this->expectException(UnknownUserException::class);
         $this->newSubject()->load(1234);
     }
 
@@ -141,7 +141,7 @@ abstract class UserRepositoryTest extends \PHPUnit\Framework\TestCase
         return $user;
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->config = new Configuration([]);

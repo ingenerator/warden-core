@@ -17,9 +17,7 @@ jobs:
         - '7.4'
         dependencies:
         - 'default'
-        include:
-        - php_version: '7.4'
-          dependencies: 'lowest'
+
     steps:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2

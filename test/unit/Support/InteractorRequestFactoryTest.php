@@ -55,7 +55,7 @@ class InteractorRequestFactoryTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('foo@bar.com', $request->getEmail());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->config = new Configuration([]);
