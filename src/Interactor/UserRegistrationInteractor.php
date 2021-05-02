@@ -99,7 +99,7 @@ class UserRegistrationInteractor extends AbstractTokenValidatingInteractor
      */
     protected function createUser(UserRegistrationRequest $request)
     {
-        $user = $this->users_repo->newUser();
+        $user = $this->makeUser($request);
         // Extra fields intentionally before core fields to ensure the request object cannot break core logic
         $request->populateExtraFields($user);
         $user->setEmail($request->getEmail());
@@ -107,6 +107,19 @@ class UserRegistrationInteractor extends AbstractTokenValidatingInteractor
         $this->setInitialActiveState($user, $request);
 
         return $user;
+    }
+
+    /**
+     * Handy extension point if you need to return an existing user
+     * instead of being forced to create a new one
+     *
+     * @param UserRegistrationRequest $request
+     *
+     * @return User
+     */
+    protected function makeUser(UserRegistrationRequest $request)
+    {
+        return $this->users_repo->newUser();
     }
 
     /**

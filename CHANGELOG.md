@@ -1,5 +1,9 @@
 ### Unreleased
 
+* UserRegistrationInteractor is now more amenable to extension. The makeUser method can now be easily overridden to allow applications to specify how the user should be provided. See f975cf3f19080a36bd29f10e7906c9c6a844c5bb for more detail.
+
+* The entire EmailVerificationRequest is now available through ConfirmationRequiredNotification to improve extensibility in cases where you might override the Request to carry additional properties. In a future version ConfirmationRequiredNotification::__construct() could be disabled, and the parameters extracted directly from the request at runtime rather than at instantiation.
+
 ### v1.1.1 (2021-04-21)
 
 * Support PHP8.0
