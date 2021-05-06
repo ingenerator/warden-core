@@ -8,6 +8,7 @@ namespace Ingenerator\Warden\Core\Notification;
 
 
 use Ingenerator\Warden\Core\Entity\User;
+use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 
 class ConfirmationRequiredNotification extends UserNotification
 {
@@ -27,6 +28,12 @@ class ConfirmationRequiredNotification extends UserNotification
     protected $recipient_user;
 
     /**
+     * @var EmailVerificationRequest
+     */
+    protected EmailVerificationRequest $initiating_request;
+
+    /**
+     * @deprecated use ::createWithRequest
      * @param string $recipient_email
      * @param string $action
      * @param string $continuation_url
@@ -41,6 +48,25 @@ class ConfirmationRequiredNotification extends UserNotification
         $this->action = $action;
         $this->continuation_url = $continuation_url;
         $this->recipient_user = $recipient_user;
+    }
+
+    public static function createWithRequest(EmailVerificationRequest $request, string $url): ConfirmationRequiredNotification
+    {
+        $self = new static(
+            $request->getEmail(),
+            $request->getEmailAction(),
+            $url,
+            $request->getUser()
+        );
+
+        $self->initiating_request = $request;
+
+        return $self;
+    }
+
+    public function getInitiatingRequest(): EmailVerificationRequest
+    {
+        return $this->initiating_request;
     }
 
     /**

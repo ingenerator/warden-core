@@ -99,7 +99,7 @@ class LoginInteractorTest extends AbstractInteractorTest
             ],
             [
                 UserStub::inactiveWithPasswordHash('foo@bar.com', 'abcdefgh'),
-                LoginResponse::ERROR_PASSWORD_INCORRECT,
+                LoginResponse::ERROR_NOT_ACTIVE,
             ],
             [
                 UserStub::inactiveWithPasswordHash('foo@bar.com', '87654321'),

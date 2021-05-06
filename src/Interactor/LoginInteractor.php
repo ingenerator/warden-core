@@ -104,7 +104,7 @@ class LoginInteractor
      */
     protected function handlePasswordIncorrect(User $user)
     {
-        $request = EmailVerificationRequest::forPasswordReset($user);
+        $request = $this->doPasswordResetEmail($user);
         $result  = $this->email_verification->execute($request);
         if ($result->isFailureCode(EmailVerificationResponse::ERROR_RATE_LIMITED)) {
             return LoginResponse::passwordIncorrectRateLimited($user, $result->canRetryAfter());
@@ -118,7 +118,12 @@ class LoginInteractor
             );
         }
 
-        return LoginResponse::passwordIncorrect($user);
+        return $user->isActive() ? LoginResponse::passwordIncorrect($user) : LoginResponse::notActive($user);
+    }
+
+    protected function doPasswordResetEmail(User $user): EmailVerificationRequest
+    {
+        return EmailVerificationRequest::forPasswordReset($user);
     }
 
     protected function handleInactiveUserWithCorrectPassword(User $user)
