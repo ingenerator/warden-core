@@ -1,5 +1,9 @@
 ### Unreleased
 
+### v1.2.0 (2022-10-17)
+
+* Support PHP 8.1 and PHP 8.2
+
 ### v1.1.2 (2021-05-06)
 
 * UserRegistrationInteractor is now more amenable to extension. The makeUser method can now be easily overridden to allow applications to specify how the user should be provided. See f975cf3f19080a36bd29f10e7906c9c6a844c5bb for more detail.

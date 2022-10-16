@@ -8,6 +8,7 @@ namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
 use Ingenerator\Warden\Core\Config\Configuration;
+use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\Entity\User;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Interactor\UserRegistrationInteractor;
@@ -225,6 +226,17 @@ class UserRegistrationInteractorTest extends AbstractInteractorTest
 
     public function test_it_allows_customised_request_to_assign_additional_user_properties()
     {
+        $this->user_repo = new class extends ArrayUserRepository
+        {
+            public function newUser(): SimpleUser
+            {
+                return new class extends SimpleUser{
+                    public string $extra_field;
+                };
+            }
+
+        };
+
         $request = CustomRegistrationRequest::fromArray(
             [
                 'email'       => 'foo@boo.net',
