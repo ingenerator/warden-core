@@ -26,7 +26,7 @@ class ReversingPassswordHasherStub implements PasswordHasher
 
     public function hash($password)
     {
-        return \strrev($password);
+        return \strrev((string) $password);
     }
 
     public function isCorrect($password, $hash)
