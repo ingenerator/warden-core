@@ -1,5 +1,7 @@
 ### Unreleased
 
+* Checking MX records for valid emails is unreliable and hes been dropped from symfony/validation. Utilise 'strict' mode instead to check the address looks valid.
+
 ### v1.2.0 (2022-10-17)
 
 * Support PHP 8.1 and PHP 8.2
