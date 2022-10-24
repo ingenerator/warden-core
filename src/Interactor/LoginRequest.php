@@ -13,7 +13,7 @@ class LoginRequest extends AbstractRequest
 
     /**
      * @Assert\NotBlank
-     * @Assert\Email(checkMX = false)
+     * @Assert\Email(mode = "loose")
      * @var string
      */
     protected $email;

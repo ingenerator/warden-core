@@ -16,7 +16,7 @@ class UserRegistrationRequest extends AbstractRequest implements TokenSignedRequ
 {
     /**
      * @Assert\NotBlank
-     * @Assert\Email(checkMX = true)
+     * @Assert\Email(mode = "strict")
      * @var string
      */
     protected $email;
