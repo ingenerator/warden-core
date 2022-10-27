@@ -19,7 +19,7 @@ interface PasswordHasher
 
     /**
      * @param string $password
-     * @param string $hash
+     * @param ?string $hash
      *
      * @return boolean
      */

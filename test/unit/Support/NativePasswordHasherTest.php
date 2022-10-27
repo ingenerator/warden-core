@@ -51,6 +51,13 @@ class NativePasswordHasherTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($expect_correct, $subject->isCorrect($verify_password, $hash));
     }
 
+    public function test_it_can_verify_password_does_not_match_null_hash()
+    {
+        // e.g. if a user account does not have a password yet
+        $subject = $this->newSubject();
+        $this->assertFalse($subject->isCorrect('anything', NULL));
+    }
+
     public function test_it_can_verify_old_hashed_password_even_when_configuration_has_changed()
     {
         $password                        = '12346689';
