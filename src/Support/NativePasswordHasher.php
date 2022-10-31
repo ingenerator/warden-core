@@ -36,6 +36,10 @@ class NativePasswordHasher implements PasswordHasher
 
     public function isCorrect($password, $hash)
     {
+        if ($hash === NULL) {
+            return FALSE;
+        }
+
         return \password_verify($password, $hash);
     }
 
