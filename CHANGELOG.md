@@ -1,5 +1,7 @@
 ### Unreleased
 
+### v1.2.2 (2022-10-31)
+
 * Fix deprecation on password ->isCorrect() when hash is null - e.g. if a user's password has never been initialised.
 
 ### v1.2.1 (2022-10-24)
