@@ -4,6 +4,7 @@
 
 * Include warden-validator-symfony as part of the core package
 * Drop support for PHP 8.0
+* Support PHP 8.3
 
 ### v1.2.2 (2022-10-31)
 
