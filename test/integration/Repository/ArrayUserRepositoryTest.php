@@ -9,7 +9,7 @@ namespace test\integration\Ingenerator\Warden\Core\Repository;
 
 use Ingenerator\Warden\Core\Repository\ArrayUserRepository;
 
-class ArrayUserRepositoryTest extends UserRepositoryTest
+class ArrayUserRepositoryTest extends UserRepositoryTestCase
 {
     /**
      * @var \ArrayObject

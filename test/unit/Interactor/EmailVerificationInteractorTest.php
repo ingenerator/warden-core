@@ -24,7 +24,7 @@ use test\mock\Ingenerator\Warden\Core\Support\InsecureJSONTokenServiceStub;
 use test\mock\Ingenerator\Warden\Core\Support\UserNotificationMailerSpy;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
 
-class EmailVerificationInteractorTest extends AbstractInteractorTest
+class EmailVerificationInteractorTest extends AbstractInteractorTestCase
 {
     /**
      * @var EmailConfirmationTokenService

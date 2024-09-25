@@ -9,9 +9,10 @@ namespace test\unit\Ingenerator\Warden\Core\UserSession;
 use BadMethodCallException;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\UserSession\UserSession;
+use PHPUnit\Framework\TestCase;
 use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
 
-abstract class UserSessionTest extends \PHPUnit\Framework\TestCase
+abstract class UserSessionTestCase extends TestCase
 {
 
     public function test_it_is_initialisable()

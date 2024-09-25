@@ -26,7 +26,7 @@ use test\mock\Ingenerator\Warden\Core\Support\ReversingPassswordHasherStub;
 use test\mock\Ingenerator\Warden\Core\Support\ValidInvalidTokenServiceStub;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
 
-class UserRegistrationInteractorTest extends AbstractInteractorTest
+class UserRegistrationInteractorTest extends AbstractInteractorTestCase
 {
     protected $config = [
         'registration' => [

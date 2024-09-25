@@ -24,7 +24,7 @@ use test\mock\Ingenerator\Warden\Core\Support\ReversingPassswordHasherStub;
 use test\mock\Ingenerator\Warden\Core\Support\ValidInvalidTokenServiceStub;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
 
-class PasswordResetInteractorTest extends AbstractInteractorTest
+class PasswordResetInteractorTest extends AbstractInteractorTestCase
 {
     /**
      * @var ReversingPassswordHasherStub

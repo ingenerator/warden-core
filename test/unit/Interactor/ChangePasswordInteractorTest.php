@@ -19,7 +19,7 @@ use test\mock\Ingenerator\Warden\Core\Repository\SaveSpyingUserRepository;
 use test\mock\Ingenerator\Warden\Core\Support\ReversingPassswordHasherStub;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
 
-class ChangePasswordInteractorTest extends AbstractInteractorTest
+class ChangePasswordInteractorTest extends AbstractInteractorTestCase
 {
 
     /**
