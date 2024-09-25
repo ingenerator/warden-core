@@ -1,5 +1,9 @@
 ### Unreleased
 
+### v2.0.0 (2024-09-25)
+
+* Include warden-validator-symfony as part of the core package
+
 ### v1.2.2 (2022-10-31)
 
 * Fix deprecation on password ->isCorrect() when hash is null - e.g. if a user's password has never been initialised.

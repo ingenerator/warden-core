@@ -6,19 +6,16 @@
 
 namespace Ingenerator\Warden\Core\Interactor;
 
-
 use Ingenerator\Warden\Core\Entity\User;
 use Symfony\Component\Validator\Constraints as Assert;
-
-/** @var Assert $annotations keep me to stop phpstorm deleting the import */
 
 class UserRegistrationRequest extends AbstractRequest implements TokenSignedRequest
 {
     /**
-     * @Assert\NotBlank
-     * @Assert\Email(mode = "strict")
      * @var string
      */
+    #[Assert\NotBlank]
+    #[Assert\Email(mode: 'strict')]
     protected $email;
 
     /**
@@ -27,10 +24,10 @@ class UserRegistrationRequest extends AbstractRequest implements TokenSignedRequ
     protected $email_confirmation_token;
 
     /**
-     * @Assert\Length(min = 8)
-     * @Assert\NotBlank
      * @var string
      */
+    #[Assert\Length(min: 8)]
+    #[Assert\NotBlank]
     protected $password;
 
     /**

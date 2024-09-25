@@ -10,7 +10,6 @@ use Ingenerator\Warden\Core\Entity\User;
 use Ingenerator\Warden\Core\Support\UrlProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @var Assert $annotations keep me to stop phpstorm deleting the import */
 class EmailVerificationRequest extends AbstractRequest
 {
 
@@ -26,10 +25,10 @@ class EmailVerificationRequest extends AbstractRequest
     protected $action;
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Email(mode = "strict")
      * @var string
      */
+    #[Assert\NotBlank]
+    #[Assert\Email(mode: 'strict')]
     protected $email;
 
     /**
