@@ -2,7 +2,8 @@
 
 ### v2.0.0 (2024-09-25)
 
-* Include warden-validator-symfony as part of the core package
+* [BREAKING] Remove @Assert docblock annotations from request objects. Migrated to using attributes
+* Include a validator with this core package (using symfony) with attribute tagging on request objects  
 * Drop support for PHP 8.0
 * Support PHP 8.3
 

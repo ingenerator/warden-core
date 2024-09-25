@@ -20,50 +20,12 @@ This isn't in packagist yet : you'll need to add our package repository to your 
 
 # Validation
 
-A default validation interface is included, based on symfony validator.
+A default validation interface is included, along with an implementation using symfony validator and a factory to create a validator.
 
-## Using annotation based mapping
+## Using attribute based mapping
 
-The warden-core package defines validation mapping by default with annotations on the
-various entity and request objects. To use these, you need to configure annotation mapping.
-
-To create a validator with annotation support, require the `doctrine/annotations` composer
-package.
-
-Then create a factory method like:
-
-```php
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Mapping\Cache\CacheInterface;
-
-class ValidatorFactory
-{
-  /**
-   * @return \Symfony\Component\Validator\Validator\ValidatorInterface
-   */
-  public static function buildSymfonyValidator(CacheInterface $cache) 
-  {
-     // The Doctrine annotation loader does not by default autoload because some PSR-0 autoloaders are badly behaved
-     // and emit warnings/output/errors when a class can't be found. If yours doesn't, it's safe to just use 
-     // class_exists as a global autoloader.
-     AnnotationRegistry::registerLoader(function ($class) { return class_exists($class); });
-     $builder = Validation::createValidatorBuilder();
-     $builder->enableAnnotationMapping();
-     
-     if ($cache) {
-       $builder->setMetadataCache($cache);
-     }
-     
-     return $builder->getValidator();
-  }
-  
-  public static function buildWardenValidator(ValidatorInterface $sf_validator)
-  {
-    return new SymfonyValidator($sf_validator);
-  }
-}
-```
+The warden-core package defines validation mapping by default with attributes on the 
+various entity and request objects.
 
 ## Using alternate mapping
 
