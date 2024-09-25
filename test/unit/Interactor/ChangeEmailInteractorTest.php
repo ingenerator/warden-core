@@ -23,7 +23,7 @@ use test\mock\Ingenerator\Warden\Core\Repository\SaveSpyingUserRepository;
 use test\mock\Ingenerator\Warden\Core\Support\InsecureJSONTokenServiceStub;
 use test\mock\Ingenerator\Warden\Core\Validator\ValidatorStub;
 
-class ChangeEmailInteractorTest extends AbstractInteractorTest
+class ChangeEmailInteractorTest extends AbstractInteractorTestCase
 {
 
     /**

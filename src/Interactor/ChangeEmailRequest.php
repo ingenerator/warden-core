@@ -8,23 +8,21 @@ namespace Ingenerator\Warden\Core\Interactor;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @var Assert $annotations keep me to stop phpstorm deleting the import */
-
 class ChangeEmailRequest extends AbstractRequest implements TokenSignedRequest
 {
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Regex("/^\w+/")
      * @var string
      */
+    #[Assert\NotBlank]
+    #[Assert\Regex('/^\w+$/')]
     protected $user_id;
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Email(mode = "strict")
      * @var string
      */
+    #[Assert\NotBlank]
+    #[Assert\Email(mode: 'strict')]
     protected $email;
 
     /**

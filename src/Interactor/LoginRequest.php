@@ -5,17 +5,17 @@
  */
 
 namespace Ingenerator\Warden\Core\Interactor;
-use Symfony\Component\Validator\Constraints as Assert;
 
+use Symfony\Component\Validator\Constraints as Assert;
 
 class LoginRequest extends AbstractRequest
 {
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Email(mode = "loose")
      * @var string
      */
+    #[Assert\NotBlank]
+    #[Assert\Email(mode: 'loose')]
     protected $email;
 
     /**

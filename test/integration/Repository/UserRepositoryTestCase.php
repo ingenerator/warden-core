@@ -15,7 +15,7 @@ use Ingenerator\Warden\Core\Repository\UnknownUserException;
 use Ingenerator\Warden\Core\Repository\UserRepository;
 use PHPUnit\Framework\TestCase;
 
-abstract class UserRepositoryTest extends TestCase
+abstract class UserRepositoryTestCase extends TestCase
 {
     /**
      * @var Configuration

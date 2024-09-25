@@ -7,23 +7,21 @@
 namespace Ingenerator\Warden\Core\Interactor;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @var Assert $annotations keep me to stop phpstorm deleting the import */
-
 class PasswordResetRequest extends AbstractRequest implements TokenSignedRequest
 {
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Regex("/^\w+/")
      * @var string
      */
+    #[Assert\NotBlank]
+    #[Assert\Regex('/^\w+$/')]
     protected $user_id;
 
     /**
-     * @Assert\Length(min = 8)
-     * @Assert\NotBlank
      * @var string
      */
+    #[Assert\Length(min: 8)]
+    #[Assert\NotBlank]
     protected $new_password;
 
     /**

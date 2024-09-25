@@ -9,7 +9,7 @@ namespace test\unit\Ingenerator\Warden\Core\UserSession;
 
 use Ingenerator\Warden\Core\UserSession\SimplePropertyUserSession;
 
-class ArrayUserSessionTest extends UserSessionTest
+class ArrayUserSessionTest extends UserSessionTestCase
 {
 
     public function newSubject()

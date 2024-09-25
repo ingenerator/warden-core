@@ -18,6 +18,21 @@ This isn't in packagist yet : you'll need to add our package repository to your 
 
 `$> composer require ingenerator/warden-core`
 
+# Validation
+
+A default validation interface is included, along with an implementation using symfony validator and a factory to create a validator.
+
+## Using attribute based mapping
+
+The warden-core package defines validation mapping by default with attributes on the 
+various entity and request objects.
+
+## Using alternate mapping
+
+If you want to use an alternate validation mapping method (e.g. yaml files / xml files) you will
+need to define the appropriate mappings based on the constraints specified in the warden class
+annotations, and populate your validation builder appropriately.
+
 # Contributing
 
 Contributions are welcome but please contact us before you start work on anything to check your

@@ -8,21 +8,20 @@ namespace Ingenerator\Warden\Core\Interactor;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @var Assert $annotations keep me to stop phpstorm deleting the import */
 class ChangePasswordRequest extends AbstractRequest
 {
 
     /**
-     * @Assert\NotBlank
      * @var string
      */
+    #[Assert\NotBlank]
     protected $current_password;
 
     /**
-     * @Assert\Length(min = 8)
-     * @Assert\NotBlank
      * @var string
      */
+    #[Assert\Length(min: 8)]
+    #[Assert\NotBlank]
     protected $new_password;
 
     /**
