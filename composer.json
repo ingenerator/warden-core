@@ -22,12 +22,12 @@
     }
   ],
   "require": {
-    "egulias/email-validator": "^4.0",
-    "php": "~8.2.0 || ~8.3.0",
-    "symfony/validator": "^6.4"
+    "egulias/email-validator": "^4.0.0",
+    "php": "~8.2.0 || ~8.3.0 || ~8.4.0 ",
+    "symfony/validator": "^6.4 || ^7.4"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.5.5"
+    "phpunit/phpunit": "^9.6.23"
   },
   "autoload": {
     "psr-4": {
