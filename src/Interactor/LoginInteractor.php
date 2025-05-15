@@ -8,6 +8,7 @@ namespace Ingenerator\Warden\Core\Interactor;
 
 
 use Ingenerator\Warden\Core\Entity\User;
+use Ingenerator\Warden\Core\Interactor\Guard\BeforeSuccessfulLoginGuard;
 use Ingenerator\Warden\Core\RateLimit\LeakyBucket;
 use Ingenerator\Warden\Core\Repository\UserRepository;
 use Ingenerator\Warden\Core\Support\PasswordHasher;
@@ -23,6 +24,7 @@ class LoginInteractor
         protected PasswordHasher $hasher,
         protected UserSession $session,
         protected EmailVerificationInteractor $email_verification,
+        protected readonly ?BeforeSuccessfulLoginGuard $before_login_guard = NULL,
     ) {
     }
 
@@ -60,6 +62,14 @@ class LoginInteractor
         }
 
         $this->upgradePasswordHashIfRequired($user, $request->getPassword());
+
+        if ($this->before_login_guard) {
+            $guard_result = $this->before_login_guard->guardSuccessfulLogin($request, $user);
+            if ($guard_result !== TRUE) {
+                return $guard_result;
+            }
+        }
+
         $this->session->login($user);
 
         return LoginResponse::success($user);
