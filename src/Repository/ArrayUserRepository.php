@@ -7,22 +7,17 @@
 namespace Ingenerator\Warden\Core\Repository;
 
 
+use ArrayObject;
 use Ingenerator\Warden\Core\Config\Configuration;
 use Ingenerator\Warden\Core\Entity\User;
 
 class ArrayUserRepository implements UserRepository
 {
-    protected $users = [];
 
-    /**
-     * @var Configuration
-     */
-    protected $config;
-
-    public function __construct(Configuration $config = NULL, \ArrayObject $storage = NULL)
-    {
-        $this->users  = $storage ?: new \ArrayObject;
-        $this->config = $config ?: new Configuration([]);
+    public function __construct(
+        protected Configuration $config = new Configuration([]),
+        protected ArrayObject $users = new ArrayObject()
+    ) {
     }
 
     /**
