@@ -1,5 +1,7 @@
 ### Unreleased
 
+* Drop support for PHP 8.1
+
 ### v2.0.0 (2024-09-25)
 
 * [BREAKING] Remove @Assert docblock annotations from request objects. Migrated to using attributes
