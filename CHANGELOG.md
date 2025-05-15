@@ -1,5 +1,8 @@
 ### Unreleased
 
+* Add support for symfony/validator ^7
+* Add support for PHP 8.4, including fixing internal nullable parameter hints and blocking old versions
+  of symfony/translation-contracts.
 * Drop support for PHP 8.1
 
 ### v2.0.0 (2024-09-25)
