@@ -12,24 +12,12 @@ use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 
 class ConfirmationRequiredNotification extends UserNotification
 {
-    /**
-     * @var string
-     */
-    protected $continuation_url;
+    protected string $continuation_url;
 
-    /**
-     * @var string
-     */
-    protected $action;
+    protected string $action;
 
-    /**
-     * @var \Ingenerator\Warden\Core\Entity\User
-     */
-    protected $recipient_user;
+    protected ?User $recipient_user;
 
-    /**
-     * @var EmailVerificationRequest
-     */
     protected EmailVerificationRequest $initiating_request;
 
     /**
@@ -42,7 +30,7 @@ class ConfirmationRequiredNotification extends UserNotification
         $recipient_email,
         $action,
         $continuation_url,
-        User $recipient_user = NULL
+        ?User $recipient_user = NULL
     ) {
         parent::__construct($recipient_email);
         $this->action = $action;
