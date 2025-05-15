@@ -16,47 +16,15 @@ use Ingenerator\Warden\Core\Validator\Validator;
 
 class LoginInteractor
 {
-    /**
-     * @var Validator
-     */
-    protected $validator;
-    /**
-     * @var PasswordHasher
-     */
-    protected $hasher;
-    /**
-     * @var UserSession
-     */
-    protected $session;
-    /**
-     * @var UserRepository
-     */
-    protected $user_repo;
-    /**
-     * @var EmailVerificationInteractor
-     */
-    protected $email_verification;
-    /**
-     * @var \Ingenerator\Warden\Core\RateLimit\LeakyBucket
-     */
-    protected $leaky_bucket;
-
     public function __construct(
-        Validator $validator,
-        LeakyBucket $leaky_bucket,
-        UserRepository $user_repo,
-        PasswordHasher $hasher,
-        UserSession $session,
-        EmailVerificationInteractor $email_verification
+        protected Validator $validator,
+        protected LeakyBucket $leaky_bucket,
+        protected UserRepository $user_repo,
+        protected PasswordHasher $hasher,
+        protected UserSession $session,
+        protected EmailVerificationInteractor $email_verification,
     ) {
-        $this->validator          = $validator;
-        $this->user_repo          = $user_repo;
-        $this->hasher             = $hasher;
-        $this->session            = $session;
-        $this->email_verification = $email_verification;
-        $this->leaky_bucket       = $leaky_bucket;
     }
-
 
     /**
      * @param LoginRequest $request
