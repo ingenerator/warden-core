@@ -7,12 +7,14 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
+use BadMethodCallException;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\Entity\User;
 use Ingenerator\Warden\Core\Interactor\AbstractResponse;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationInteractor;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationResponse;
+use Ingenerator\Warden\Core\Interactor\Guard\BeforeSuccessfulLoginGuard;
 use Ingenerator\Warden\Core\Interactor\LoginInteractor;
 use Ingenerator\Warden\Core\Interactor\LoginRequest;
 use Ingenerator\Warden\Core\Interactor\LoginResponse;
@@ -64,6 +66,8 @@ class LoginInteractorTest extends AbstractInteractorTestCase
      * @var Validator
      */
     protected $validator;
+
+    private ?BeforeSuccessfulLoginGuard $before_login_guard = NULL;
 
     public function test_it_is_initialisable()
     {
@@ -162,7 +166,7 @@ class LoginInteractorTest extends AbstractInteractorTestCase
                 // Both OK
                 [
                     'warden.login.global' => ['all' => FALSE],
-                    'warden.login.user'   => ['foo@bar.com' => FALSE]
+                    'warden.login.user'   => ['foo@bar.com' => FALSE],
                 ],
                 FALSE,
                 NULL,
@@ -172,32 +176,32 @@ class LoginInteractorTest extends AbstractInteractorTestCase
                 // Too many by user
                 [
                     'warden.login.global' => ['all' => FALSE],
-                    'warden.login.user'   => ['foo@bar.com' => $plus_1]
+                    'warden.login.user'   => ['foo@bar.com' => $plus_1],
                 ],
                 TRUE,
                 $plus_1,
-                'warden.login.user'
+                'warden.login.user',
             ],
             [
                 // Too many globally
                 [
                     'warden.login.global' => ['all' => $plus_2],
-                    'warden.login.user'   => ['foo@bar.com' => FALSE]
+                    'warden.login.user'   => ['foo@bar.com' => FALSE],
                 ],
                 TRUE,
                 $plus_2,
-                'warden.login.global'
+                'warden.login.global',
             ],
             [
                 // Too many by user and globally, retry is the max
                 [
                     'warden.login.global' => ['all' => $plus_2],
-                    'warden.login.user'   => ['foo@bar.com' => $plus_1]
+                    'warden.login.user'   => ['foo@bar.com' => $plus_1],
                 ],
                 TRUE,
                 $plus_2,
-                'warden.login.user,warden.login.global'
-            ]
+                'warden.login.user,warden.login.global',
+            ],
         ];
     }
 
@@ -241,6 +245,75 @@ class LoginInteractorTest extends AbstractInteractorTestCase
             $this->user_session->getUser(),
             'User session should be authenticated'
         );
+    }
+
+    public static function provider_before_login_guard()
+    {
+        $active_user = UserStub::activeWithPasswordHash('foo@bar.com', '12345678');
+        $inactive_user = UserStub::inactiveWithPasswordHash('foo@bar.com', '12345678');
+        $block_response = new class extends LoginResponse {
+            public function __construct()
+            {
+                parent::__construct(FALSE, 'SOME_CUSTOM_REASON');
+            }
+        };
+
+        return [
+            'inactive user, guard not called' => [
+                'user' => $inactive_user,
+                'guard_response' => new BadMethodCallException('Expected no calls'),
+                'expect_calls' => 0,
+                'expect_response' => LoginResponse::notActive($inactive_user),
+                'expect_logged_in' => FALSE,
+            ],
+            'active user, guard called and allows login' => [
+                'user' => $active_user,
+                'guard_response' => TRUE,
+                'expect_calls' => 1,
+                'expect_response' => LoginResponse::success($active_user),
+                'expect_logged_in' => TRUE,
+            ],
+            'active user, guard called and blocks login' => [
+                'user' => $active_user,
+                'guard_response' => $block_response,
+                'expect_calls' => 1,
+                'expect_response' => $block_response,
+                'expect_logged_in' => FALSE,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provider_before_login_guard
+     */
+    public function test_it_allows_app_to_optionally_guard_successful_logins(
+        UserStub $user,
+        mixed $guard_response,
+        int $expect_calls,
+        LoginResponse $expect_response,
+        bool $expect_logged_in
+    ) {
+        $this->password_hasher = new ReversingPassswordHasherStub();
+        $this->user_repo->save($user);
+        $this->before_login_guard = new class($guard_response) implements BeforeSuccessfulLoginGuard {
+            public array $calls = [];
+
+            public function __construct(private readonly mixed $response) { }
+
+            public function guardSuccessfulLogin(LoginRequest $request, User $user): true|LoginResponse
+            {
+                $this->calls[] = get_defined_vars();
+
+                return $this->response;
+            }
+        };
+
+        $this->assertEquals($expect_response, $this->executeWith(['email' => 'foo@bar.com', 'password' => '87654321']));
+        $this->assertSame($expect_logged_in, $this->user_session->isAuthenticated());
+        $this->assertCount($expect_calls, $this->before_login_guard->calls, 'Expected correct calls to login guard');
+        if ($expect_calls) {
+            $this->assertSame($user, $this->before_login_guard->calls[0]['user']);
+        }
     }
 
     public function test_it_upgrades_password_hash_on_successful_login_if_required()
@@ -428,7 +501,8 @@ class LoginInteractorTest extends AbstractInteractorTestCase
             $this->user_repo,
             $this->password_hasher,
             $this->user_session,
-            $this->email_verification
+            $this->email_verification,
+            $this->before_login_guard,
         );
     }
 
