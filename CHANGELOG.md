@@ -1,5 +1,7 @@
 ### Unreleased
 
+### v2.1.0 (2025-06-25)
+
 * Add: Optionally inject a BeforeSuccessfulLoginGuard to the LoginInteractor, to allow applications to block an
   otherwise-successful authentication for custom reasons.
 * Add support for symfony/validator ^7
