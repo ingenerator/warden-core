@@ -1,5 +1,9 @@
 ### Unreleased
 
+### v2.1.1 (2025-07-22)
+
+* Fix symfony/validator ^7 dependency
+* Replace email validation with same regex patten as previous "loose" mode was dropped from validator ^7
 * Remove deprecated E_STRICT const from error reporting level in test bootstrap
 
 ### v2.1.0 (2025-06-25)
