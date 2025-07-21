@@ -1,5 +1,7 @@
 ### Unreleased
 
+* Remove deprecated E_STRICT const from error reporting level in test bootstrap
+
 ### v2.1.0 (2025-06-25)
 
 * Add: Optionally inject a BeforeSuccessfulLoginGuard to the LoginInteractor, to allow applications to block an
