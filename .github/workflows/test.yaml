@@ -31,7 +31,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-
     - name: Install composer dependencies
       uses: ramsey/composer-install@v3
       with:

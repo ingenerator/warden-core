@@ -13,9 +13,12 @@ class LoginRequest extends AbstractRequest
 
     /**
      * @var string
+     *
+     * Validate with a very basic regex pattern to avoid unnecessary database lookups
+     * It is not intended to be a full email validation as that is not a login concern
      */
     #[Assert\NotBlank]
-    #[Assert\Email(mode: 'loose')]
+    #[Assert\Regex(pattern: '/^.+\@\S+\.\S+$/', message: "This value is not a valid email address.")]
     protected $email;
 
     /**
