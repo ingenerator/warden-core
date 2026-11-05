@@ -7,6 +7,8 @@
 namespace test\unit\Ingenerator\Warden\Core\RateLimit;
 
 
+use PHPUnit\Framework\Attributes\TestWith;
+use DateTimeImmutable;
 use Ingenerator\Warden\Core\RateLimit\LeakyBucketStorage;
 use Ingenerator\Warden\Core\RateLimit\LockWaitTimeoutException;
 use Ingenerator\Warden\Core\RateLimit\StorageBackedLeakyBucket;
@@ -32,7 +34,7 @@ class StorageBackedLeakyBucketTest extends TestCase
     ];
 
     /**
-     * @var \test\unit\Ingenerator\Warden\Core\RateLimit\BucketStorageStub
+     * @var BucketStorageStub
      */
     protected $storage;
 
@@ -65,10 +67,8 @@ class StorageBackedLeakyBucketTest extends TestCase
         $this->newSubject()->attemptRequest('warden.email.reset', 'anybody');
     }
 
-    /**
-     * @testWith [3]
-     *           [1]
-     */
+    #[TestWith([3])]
+    #[TestWith([1])]
     public function test_it_retries_taking_lock_within_timeout_and_clears_after_operation($attempt)
     {
         $this->config['bucket_lock'] = [
@@ -148,7 +148,7 @@ class StorageBackedLeakyBucketTest extends TestCase
         $result = $this->newSubject()->attemptRequest('any', 'anything');
         $this->assertTrue($result->isRateLimited());
         $this->assertEqualsWithDelta(
-            new \DateTimeImmutable('+30 seconds'),
+            new DateTimeImmutable('+30 seconds'),
             $result->getNextAvailableTime(),
             1,
             'Should be basically right time'

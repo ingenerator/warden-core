@@ -7,6 +7,8 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use InvalidArgumentException;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Support\FixedUrlProviderStub;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +17,7 @@ use test\mock\Ingenerator\Warden\Core\Entity\UserStub;
 class EmailVerificationRequestTest extends TestCase
 {
 
-    public function provider_requires_unregistered_email()
+    public static function provider_requires_unregistered_email()
     {
         return [
             [EmailVerificationRequest::ACTIVATE_ACCOUNT, FALSE],
@@ -26,15 +28,13 @@ class EmailVerificationRequestTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_requires_unregistered_email
-     */
+    #[DataProvider('provider_requires_unregistered_email')]
     public function test_it_indicates_whether_it_requires_unregistered_email($type, $expect)
     {
         $this->assertSame($expect, $this->makeRequest($type)->requiresUnregisteredEmail());
     }
 
-    public function provider_url_parameters()
+    public static function provider_url_parameters()
     {
         return [
             [
@@ -100,15 +100,13 @@ class EmailVerificationRequestTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_url_parameters
-     */
+    #[DataProvider('provider_url_parameters')]
     public function test_it_provides_url_and_token_parameters($type, $type_args, $expect)
     {
         $this->assertSame($expect, $this->makeRequest($type, $type_args)->getUrlParamsToSign());
     }
 
-    public function provider_continuation_url()
+    public static function provider_continuation_url()
     {
         return [
             [EmailVerificationRequest::ACTIVATE_ACCOUNT, '/complete-activation?any=thing'],
@@ -119,9 +117,7 @@ class EmailVerificationRequestTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_continuation_url
-     */
+    #[DataProvider('provider_continuation_url')]
     public function test_it_provides_continuation_url_from_url_provider($type, $expect)
     {
         $urls = new FixedUrlProviderStub;
@@ -135,7 +131,7 @@ class EmailVerificationRequestTest extends TestCase
      * @param string $type
      * @param array  $args
      *
-     * @return \Ingenerator\Warden\Core\Interactor\EmailVerificationRequest
+     * @return EmailVerificationRequest
      */
     protected function makeRequest($type, $args = [])
     {
@@ -161,7 +157,7 @@ class EmailVerificationRequestTest extends TestCase
                 return EmailVerificationRequest::forPasswordReset($args[0]);
 
             default:
-                throw new \InvalidArgumentException('Can\'t factory type '.$type);
+                throw new InvalidArgumentException('Can\'t factory type '.$type);
         }
     }
 

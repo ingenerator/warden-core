@@ -7,11 +7,12 @@
 namespace test\unit\Ingenerator\Warden\Core\Config;
 
 
+use PHPUnit\Framework\TestCase;
 use Ingenerator\Warden\Core\Config\Configuration;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 use InvalidArgumentException;
 
-class ConfigurationTest extends \PHPUnit\Framework\TestCase
+class ConfigurationTest extends TestCase
 {
     public function test_it_is_initialisable()
     {
@@ -27,7 +28,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     public function test_it_throws_on_attempt_to_map_undefined_class()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('No classmap entry for foo.bar');
+        $this->expectExceptionMessageIsOrContains('No classmap entry for foo.bar');
         $this->newSubject()->getClassName('foo', 'bar');
     }
 
@@ -40,7 +41,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
         );
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Class \Some\Unknown\Class mapped for entity.user is not defined');
+        $this->expectExceptionMessageIsOrContains('Class \Some\Unknown\Class mapped for entity.user is not defined');
 
         $subject->getClassName('entity', 'user');
     }

@@ -7,6 +7,7 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
+use PHPUnit\Framework\Attributes\TestWith;
 use Ingenerator\Warden\Core\Interactor\ChangeEmailInteractor;
 use Ingenerator\Warden\Core\Interactor\ChangeEmailRequest;
 use Ingenerator\Warden\Core\Interactor\ChangeEmailResponse;
@@ -69,11 +70,9 @@ class ChangeEmailInteractorTest extends AbstractInteractorTestCase
         $this->assertSame('unknown@foo.bar', $result->getNewEmail());
     }
 
-    /**
-     * @testWith ["foo@bar.com", "foo@bar.com"]
-     *           ["foo@bar.com", "foO@BAR.com"]
-     *           ["foo@bar.com", " foo@bar.com "]
-     */
+    #[TestWith(['foo@bar.com', 'foo@bar.com'])]
+    #[TestWith(['foo@bar.com', 'foO@BAR.com'])]
+    #[TestWith(['foo@bar.com', ' foo@bar.com '])]
     public function test_it_fails_if_user_email_already_registered_to_someone_else(
         $existing_email,
         $new_email

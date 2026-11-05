@@ -7,6 +7,7 @@
 namespace test\unit\Ingenerator\Warden\Notification;
 
 
+use LogicException;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Notification\ConfirmationRequiredNotification;
 use PHPUnit\Framework\TestCase;
@@ -57,7 +58,7 @@ class ConfirmationRequiredNotificationTest extends TestCase
 
     public function test_it_throws_if_attempt_to_get_unset_user()
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         $this->newSubject()->getRecipientUser();
     }
 

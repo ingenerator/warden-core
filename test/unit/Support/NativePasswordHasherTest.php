@@ -7,9 +7,11 @@
 namespace test\unit\Ingenerator\Warden\Core\Support;
 
 
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\TestWith;
 use Ingenerator\Warden\Core\Support\NativePasswordHasher;
 
-class NativePasswordHasherTest extends \PHPUnit\Framework\TestCase
+class NativePasswordHasherTest extends TestCase
 {
     protected $config = [
         'algorithm' => PASSWORD_DEFAULT,
@@ -40,10 +42,8 @@ class NativePasswordHasherTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(['algo' => PASSWORD_BCRYPT, 'algoName' => 'bcrypt', 'options' => ['cost' => 8]], $info);
     }
 
-    /**
-     * @testWith ["my password", "some other password", false]
-     *           ["my password", "my password", true]
-     */
+    #[TestWith(['my password', 'some other password', false])]
+    #[TestWith(['my password', 'my password', true])]
     public function test_it_can_verify_hashed_password($orig_password, $verify_password, $expect_correct)
     {
         $subject = $this->newSubject();

@@ -7,6 +7,9 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
+use DateTimeImmutable;
 use BadMethodCallException;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\Entity\User;
@@ -94,7 +97,7 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         $this->assertSame('foo@bar.com', $response->getEmail());
     }
 
-    public function provider_failed_login_users()
+    public static function provider_failed_login_users()
     {
         return [
             [
@@ -112,9 +115,7 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_failed_login_users
-     */
+    #[DataProvider('provider_failed_login_users')]
     public function test_it_fails_if_user_password_is_invalid_or_user_inactive(
         User $user,
         $expect_code
@@ -126,11 +127,9 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         $this->assertSame($user, $response->getUser());
     }
 
-    /**
-     * @testWith ["foo@bar.com", "foo@bar.com"]
-     *           ["foo@bar.com", "foO@BAR.com"]
-     *           ["foo@bar.com", " foo@bar.com "]
-     */
+    #[TestWith(['foo@bar.com', 'foo@bar.com'])]
+    #[TestWith(['foo@bar.com', 'foO@BAR.com'])]
+    #[TestWith(['foo@bar.com', ' foo@bar.com '])]
     public function test_it_succeeds_with_correct_password_and_email_in_any_case(
         $actual_email,
         $entered_email
@@ -157,10 +156,10 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         $this->leaky_bucket->assertOnlyRequestedOneOfType('warden.login.global', 'all');
     }
 
-    public function provider_rate_limit_fails()
+    public static function provider_rate_limit_fails()
     {
-        $plus_1 = new \DateTimeImmutable('+1 minutes');
-        $plus_2 = new \DateTimeImmutable('+2 minutes');
+        $plus_1 = new DateTimeImmutable('+1 minutes');
+        $plus_2 = new DateTimeImmutable('+2 minutes');
         return [
             [
                 // Both OK
@@ -205,9 +204,7 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_rate_limit_fails
-     */
+    #[DataProvider('provider_rate_limit_fails')]
     public function test_it_fails_if_any_rate_limit_fails(
         $limits,
         $expect_fail,
@@ -283,9 +280,7 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_before_login_guard
-     */
+    #[DataProvider('provider_before_login_guard')]
     public function test_it_allows_app_to_optionally_guard_successful_logins(
         UserStub $user,
         mixed $guard_response,
@@ -335,9 +330,7 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         $this->user_repo->assertNothingSaved();
     }
 
-    /**
-     * @dataProvider provider_failed_login_users
-     */
+    #[DataProvider('provider_failed_login_users')]
     public function test_it_does_not_change_password_hash_on_failed_login(User $user, $expect_code)
     {
         $this->password_hasher = ReversingPassswordHasherStub::withRehashNeeded();
@@ -369,10 +362,8 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         );
     }
 
-    /**
-     * @testWith [true]
-     *           [false]
-     */
+    #[TestWith([true])]
+    #[TestWith([false])]
     public function test_it_triggers_email_verification_for_password_reset_on_incorrect_password_whether_or_not_active(
         $is_active
     ) {
@@ -387,7 +378,7 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         );
     }
 
-    public function provider_throttled_verifications()
+    public static function provider_throttled_verifications()
     {
         return [
             [
@@ -403,15 +394,13 @@ class LoginInteractorTest extends AbstractInteractorTestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_throttled_verifications
-     */
+    #[DataProvider('provider_throttled_verifications')]
     public function test_it_identifies_if_email_verification_throttled_for_activation_or_reset(
         $user_data,
         $request,
         $expect_code
     ) {
-        $retry_after              = new \DateTimeImmutable();
+        $retry_after              = new DateTimeImmutable();
         $this->email_verification = EmailVerificationInteractorSpy::willRespond(
             EmailVerificationResponse::rateLimited('foo@bar.com', $retry_after)
         );
@@ -424,25 +413,21 @@ class LoginInteractorTest extends AbstractInteractorTestCase
     }
 
 
-    public function provider_failed_email_verifications()
+    public static function provider_failed_email_verifications(): array
     {
         return [
             [
                 ['email' => 'foo@bar.com', 'password_hash' => '12345678', 'is_active' => FALSE],
                 ['email' => 'foo@bar.com', 'password' => '87654321'],
-                LoginResponse::ERROR_NOT_ACTIVE_ACTIVATION_THROTTLED,
             ],
             [
                 ['email' => 'foo@bar.com', 'password_hash' => '12345678', 'is_active' => TRUE],
                 ['email' => 'foo@bar.com', 'password' => 'wrong'],
-                LoginResponse::ERROR_PASSWORD_INCORRECT_RESET_THROTTLED,
             ],
         ];
     }
 
-    /**
-     * @dataProvider provider_failed_email_verifications
-     */
+    #[DataProvider('provider_failed_email_verifications')]
     public function test_it_responds_if_email_verification_details_invalid_for_activation_or_reset(
         $user_data,
         $request
@@ -513,7 +498,7 @@ class LoginInteractorTest extends AbstractInteractorTestCase
      */
     protected function getMockExpectingNoCalls($className)
     {
-        $mock = $this->getMockBuilder($className)->disableOriginalConstructor()->getMock();
+        $mock = $this->createMock($className);
         $mock->expects($this->never())->method($this->anything());
 
         return $mock;

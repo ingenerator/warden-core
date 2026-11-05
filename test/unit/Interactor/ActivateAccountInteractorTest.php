@@ -7,6 +7,7 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
+use PHPUnit\Framework\Attributes\TestWith;
 use Ingenerator\Warden\Core\Interactor\ActivateAccountInteractor;
 use Ingenerator\Warden\Core\Interactor\ActivateAccountRequest;
 use Ingenerator\Warden\Core\Interactor\ActivateAccountResponse;
@@ -95,10 +96,8 @@ class ActivateAccountInteractorTest extends AbstractInteractorTestCase
         $this->user_repo->assertNothingSaved();
     }
 
-    /**
-     * @testWith [false]
-     *           [true]
-     */
+    #[TestWith([false])]
+    #[TestWith([true])]
     public function test_it_makes_active_and_saves_on_success_even_if_already_active($was_active)
     {
         // No point failing on an already-used link, just activate them again
@@ -161,7 +160,7 @@ class ActivateAccountInteractorTest extends AbstractInteractorTestCase
     /**
      * @param array $details
      *
-     * @return \Ingenerator\Warden\Core\Interactor\ActivateAccountResponse
+     * @return ActivateAccountResponse
      */
     protected function executeWith(array $details)
     {

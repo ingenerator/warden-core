@@ -7,6 +7,8 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use Ingenerator\Warden\Core\Config\Configuration;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\Entity\User;
@@ -35,7 +37,7 @@ class UserRegistrationInteractorTest extends AbstractInteractorTestCase
     ];
 
     /**
-     * @var \test\mock\Ingenerator\Warden\Core\Support\ReversingPassswordHasherStub
+     * @var ReversingPassswordHasherStub
      */
     protected $password_hasher;
 
@@ -67,7 +69,7 @@ class UserRegistrationInteractorTest extends AbstractInteractorTestCase
         );
     }
 
-    public function provider_validate_registration_token()
+    public static function provider_validate_registration_token()
     {
         return [
             [
@@ -149,9 +151,7 @@ class UserRegistrationInteractorTest extends AbstractInteractorTestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_validate_registration_token
-     */
+    #[DataProvider('provider_validate_registration_token')]
     public function test_it_can_validate_registration_token($token_required, $request, $expect)
     {
         $this->email_token_service                               = new InsecureJSONTokenServiceStub;
@@ -196,11 +196,9 @@ class UserRegistrationInteractorTest extends AbstractInteractorTestCase
         );
     }
 
-    /**
-     * @testWith ["foo@bar.com", "foo@bar.com"]
-     *           ["foo@bar.com", "foO@BAR.com"]
-     *           ["foo@bar.com", " foo@bar.com "]
-     */
+    #[TestWith(['foo@bar.com', 'foo@bar.com'])]
+    #[TestWith(['foo@bar.com', 'foO@BAR.com'])]
+    #[TestWith(['foo@bar.com', ' foo@bar.com '])]
     public function test_it_fails_if_user_email_already_has_account($existing_email, $new_email)
     {
         $this->user_repo->save(UserStub::withEmail($existing_email));
@@ -271,10 +269,8 @@ class UserRegistrationInteractorTest extends AbstractInteractorTestCase
         $this->assertFailsWithCode(UserRegistrationResponse::ERROR_EMAIL_UNCONFIRMED, $result);
     }
 
-    /**
-     * @testWith [true]
-     *           [false]
-     */
+    #[TestWith([true])]
+    #[TestWith([false])]
     public function test_it_creates_active_user_if_valid_email_confirmation_token_provided_whether_required_or_not(
         $token_required
     ) {
@@ -320,7 +316,7 @@ class UserRegistrationInteractorTest extends AbstractInteractorTestCase
     }
 
     /**
-     * @return \Ingenerator\Warden\Core\Interactor\UserRegistrationInteractor
+     * @return UserRegistrationInteractor
      */
     protected function newSubject()
     {
