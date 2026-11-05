@@ -1,5 +1,8 @@
 ### Unreleased
 
+### v2.2.0 (2026-11-05)
+
+* Add support for symfony/validator 8
 * Support PHP 8.5 and PHP 8.6
 * Drop support for PHP 8.2 and PHP 8.3
 
