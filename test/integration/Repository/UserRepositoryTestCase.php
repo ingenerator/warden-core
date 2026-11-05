@@ -135,7 +135,6 @@ abstract class UserRepositoryTestCase extends TestCase
         $refl = new ReflectionClass($user);
         foreach ($data as $field => $value) {
             $property = $refl->getProperty($field);
-            $property->setAccessible(TRUE);
             $property->setValue($user, $value);
         }
 
