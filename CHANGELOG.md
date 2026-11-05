@@ -1,5 +1,7 @@
 ### Unreleased
 
+* Drop support for PHP 8.2 and PHP 8.3
+
 ### v2.1.1 (2025-07-22)
 
 * Fix symfony/validator ^7 dependency
