@@ -7,11 +7,12 @@
 namespace test\unit\Ingenerator\Warden\Core\Support;
 
 
+use PHPUnit\Framework\TestCase;
 use Ingenerator\Warden\Core\Config\Configuration;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Support\InteractorRequestFactory;
 
-class InteractorRequestFactoryTest extends \PHPUnit\Framework\TestCase
+class InteractorRequestFactoryTest extends TestCase
 {
 
     protected $config;

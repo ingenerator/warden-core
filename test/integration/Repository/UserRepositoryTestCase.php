@@ -7,6 +7,7 @@
 namespace test\integration\Ingenerator\Warden\Core\Repository;
 
 
+use ReflectionClass;
 use Ingenerator\Warden\Core\Config\Configuration;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 use Ingenerator\Warden\Core\Entity\User;
@@ -131,10 +132,9 @@ abstract class UserRepositoryTestCase extends TestCase
 
         $user = $this->newSubject()->newUser();
 
-        $refl = new \ReflectionClass($user);
+        $refl = new ReflectionClass($user);
         foreach ($data as $field => $value) {
             $property = $refl->getProperty($field);
-            $property->setAccessible(TRUE);
             $property->setValue($user, $value);
         }
 

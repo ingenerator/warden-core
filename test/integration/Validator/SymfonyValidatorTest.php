@@ -7,6 +7,7 @@
 namespace test\integration\Ingenerator\Warden\Core\Validator\Symfony;
 
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Ingenerator\Warden\Core\Interactor\AbstractRequest;
 use Ingenerator\Warden\Core\Interactor\ActivateAccountRequest;
 use Ingenerator\Warden\Core\Interactor\ChangeEmailRequest;
@@ -150,9 +151,7 @@ class SymfonyValidatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider providerValidatesInteractorRequests
-     */
+    #[DataProvider('providerValidatesInteractorRequests')]
     public function test_it_validates_interactor_requests(AbstractRequest $request, array $expect): void
     {
         $subject = $this->newSubject();
@@ -177,9 +176,7 @@ class SymfonyValidatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider providerValidationRulesInheritedByChildClass
-     */
+    #[DataProvider('providerValidationRulesInheritedByChildClass')]
     public function test_validation_rules_are_inherited_by_child_class(array $values, array $expect): void
     {
         $subject = $this->newSubject();

@@ -6,6 +6,7 @@
 
 namespace test\mock\Ingenerator\Warden\Core\RateLimit;
 
+use DateTimeImmutable;
 use Ingenerator\Warden\Core\RateLimit\LeakyBucket;
 use Ingenerator\Warden\Core\RateLimit\LeakyBucketStatus;
 use PHPUnit\Framework\Assert;
@@ -52,7 +53,7 @@ class LeakyBucketStub implements LeakyBucket
         $this->bucket_counts[$request_type][$requester_id]++;
 
         if (isset($this->bucket_status[$request_type][$requester_id])) {
-            if ($this->bucket_status[$request_type][$requester_id] instanceof \DateTimeImmutable) {
+            if ($this->bucket_status[$request_type][$requester_id] instanceof DateTimeImmutable) {
                 return LeakyBucketStatus::rateLimited(
                     $this->bucket_status[$request_type][$requester_id]
                 );

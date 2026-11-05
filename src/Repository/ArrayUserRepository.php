@@ -79,7 +79,6 @@ class ArrayUserRepository implements UserRepository
     {
         $refl = new \ReflectionClass($user);
         $id   = $refl->getProperty('id');
-        $id->setAccessible(TRUE);
         $id->setValue($user, \uniqid());
     }
 

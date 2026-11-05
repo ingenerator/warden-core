@@ -7,6 +7,7 @@
 namespace test\mock\Ingenerator\Warden\Core\Entity;
 
 
+use InvalidArgumentException;
 use Ingenerator\Warden\Core\Entity\SimpleUser;
 
 class UserStub extends SimpleUser
@@ -22,7 +23,7 @@ class UserStub extends SimpleUser
         $i = new static;
         foreach ($params as $prop => $value) {
             if ( ! \property_exists($i, $prop)) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     'Undefined property '.$prop.' on '.\get_class($i)
                 );
             }

@@ -7,6 +7,7 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
+use Ingenerator\Warden\Core\Support\PasswordHasher;
 use Ingenerator\Warden\Core\Interactor\ChangeEmailResponse;
 use Ingenerator\Warden\Core\Interactor\ChangePasswordInteractor;
 use Ingenerator\Warden\Core\Interactor\ChangePasswordRequest;
@@ -23,7 +24,7 @@ class ChangePasswordInteractorTest extends AbstractInteractorTestCase
 {
 
     /**
-     * @var \Ingenerator\Warden\Core\Support\PasswordHasher
+     * @var PasswordHasher
      */
     protected $password_hasher;
 

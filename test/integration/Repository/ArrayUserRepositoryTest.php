@@ -7,19 +7,20 @@
 namespace test\integration\Ingenerator\Warden\Core\Repository;
 
 
+use ArrayObject;
 use Ingenerator\Warden\Core\Repository\ArrayUserRepository;
 
 class ArrayUserRepositoryTest extends UserRepositoryTestCase
 {
     /**
-     * @var \ArrayObject
+     * @var ArrayObject
      */
     protected $storage;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->storage = new \ArrayObject;
+        $this->storage = new ArrayObject;
     }
 
     protected function newSubject()

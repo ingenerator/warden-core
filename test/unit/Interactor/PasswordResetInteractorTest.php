@@ -7,6 +7,8 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Interactor\PasswordResetInteractor;
 use Ingenerator\Warden\Core\Interactor\PasswordResetRequest;
@@ -60,7 +62,7 @@ class PasswordResetInteractorTest extends AbstractInteractorTestCase
         );
     }
 
-    public function provider_validate_password_reset()
+    public static function provider_validate_password_reset()
     {
         $user_15 = UserStub::fromArray(
             ['id' => 15, 'password_hash' => 'current', 'email' => 'foo@bar.com']
@@ -113,9 +115,7 @@ class PasswordResetInteractorTest extends AbstractInteractorTestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_validate_password_reset
-     */
+    #[DataProvider('provider_validate_password_reset')]
     public function test_it_can_validate_password_reset_token($users, $request, $expect)
     {
         $this->email_token_service = new InsecureJSONTokenServiceStub;
@@ -145,10 +145,8 @@ class PasswordResetInteractorTest extends AbstractInteractorTestCase
         );
     }
 
-    /**
-     * @testWith ["valid"]
-     *           ["invalid"]
-     */
+    #[TestWith(['valid'])]
+    #[TestWith(['invalid'])]
     public function test_it_fails_if_user_does_not_exist_regardless_of_token_validity($token)
     {
         $result = $this->executeWith(['user_id' => 999, 'token' => $token]);
@@ -178,10 +176,8 @@ class PasswordResetInteractorTest extends AbstractInteractorTestCase
         $this->user_repo->assertNothingSaved();
     }
 
-    /**
-     * @testWith [{"id": 19, "email": "any.where@some.net", "password_hash": "current_hash", "is_active": false}]
-     *           [{"id": 19, "email": "any.where@some.net", "password_hash": "current_hash", "is_active": true}]
-     */
+    #[TestWith([['id' => 19, 'email' => 'any.where@some.net', 'password_hash' => 'current_hash', 'is_active' => false]])]
+    #[TestWith([['id' => 19, 'email' => 'any.where@some.net', 'password_hash' => 'current_hash', 'is_active' => true]])]
     public function test_it_stores_and_saves_new_user_password_hash_on_success_activating_if_required(
         $user_data
     ) {

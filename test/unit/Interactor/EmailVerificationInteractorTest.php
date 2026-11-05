@@ -7,6 +7,10 @@
 namespace test\unit\Ingenerator\Warden\Core\Interactor;
 
 
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\DataProvider;
+use DateTimeImmutable;
+use InvalidArgumentException;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationInteractor;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationRequest;
 use Ingenerator\Warden\Core\Interactor\EmailVerificationResponse;
@@ -102,9 +106,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTestCase
         );
     }
 
-    /**
-     * @depends test_it_sends_user_notification_to_requested_email
-     */
+    #[Depends('test_it_sends_user_notification_to_requested_email')]
     public function test_it_populates_reason_in_user_notification(
         ConfirmationRequiredNotification $notification
     ) {
@@ -127,7 +129,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTestCase
         );
     }
 
-    public function provider_user_in_notification()
+    public static function provider_user_in_notification()
     {
         $user = UserStub::withEmail('foo@bar.com');
         return [
@@ -142,9 +144,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTestCase
         ];
     }
 
-    /**
-     * @dataProvider provider_user_in_notification
-     */
+    #[DataProvider('provider_user_in_notification')]
     public function test_it_populates_user_in_notification_if_present_in_request(
         $request,
         $expect_user
@@ -159,7 +159,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTestCase
         }
     }
 
-    public function email_leaky_bucket_request_id()
+    public static function email_leaky_bucket_request_id()
     {
         return [
             [
@@ -175,9 +175,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTestCase
         ];
     }
 
-    /**
-     * @dataProvider email_leaky_bucket_request_id
-     */
+    #[DataProvider('email_leaky_bucket_request_id')]
     public function test_it_rate_limits_by_email_type_and_recipient($request, $expect_type, $expect_requester)
     {
         $this->leaky_bucket = LeakyBucketStub::alwaysResponds(LeakyBucketStatus::allowed());
@@ -187,7 +185,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTestCase
 
     public function test_it_returns_rate_limited_response_without_sending_if_rate_limit_exceeded()
     {
-        $next_available     = new \DateTimeImmutable('next monday');
+        $next_available     = new DateTimeImmutable('next monday');
         $this->leaky_bucket = LeakyBucketStub::alwaysResponds(
             LeakyBucketStatus::rateLimited($next_available)
         );
@@ -251,7 +249,7 @@ class EmailVerificationInteractorTest extends AbstractInteractorTestCase
         UserNotification $notification
     ) {
         if ( ! $notification instanceof ConfirmationRequiredNotification) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Expected ConfirmationRequiredNotification, got '.\get_class($notification)
             );
         }

@@ -6,6 +6,7 @@
 
 namespace test\mock\Ingenerator\Warden\Core\Repository;
 
+use PHPUnit\Framework\Assert;
 use Ingenerator\Warden\Core\Entity\User;
 use Ingenerator\Warden\Core\Repository\ArrayUserRepository;
 
@@ -34,12 +35,12 @@ class SaveSpyingUserRepository extends ArrayUserRepository
 
     public function assertNothingSaved()
     {
-        \PHPUnit\Framework\Assert::assertEmpty($this->users_saved);
+        Assert::assertEmpty($this->users_saved);
     }
 
     public function assertOneSaved(User $user)
     {
-        \PHPUnit\Framework\Assert::assertEquals([$user], $this->users_saved);
+        Assert::assertEquals([$user], $this->users_saved);
     }
 
 }
